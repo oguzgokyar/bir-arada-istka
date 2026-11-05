@@ -727,20 +727,20 @@
         </div>
     </footer>
 
-    <!-- 1. MEKÂN ANA GÖRSELİ TAM EKRAN MODAL (GÖRSEL DAHA BÜYÜK + ALTI AÇIKLAMA) -->
-    <div id="space-fullscreen-modal" class="hidden fixed inset-0 bg-dark-950/95 backdrop-blur-2xl z-[9999] flex-col items-center justify-between p-6 select-none" onclick="closeSpaceModal(event)">
+    <!-- 1. MEKÂN ANA GÖRSELİ TAM EKRAN MODAL (KARANLIK ALANA TIKLAYINCA ANINDA KAPANIR) -->
+    <div id="space-fullscreen-modal" class="hidden fixed inset-0 bg-dark-950/95 backdrop-blur-2xl z-[9999] flex-col items-center justify-between p-6 select-none cursor-pointer" onclick="closeSpaceModal(event)">
         <!-- Kapat Butonu -->
-        <button onclick="closeSpaceModal()" class="absolute top-6 right-8 text-white hover:text-cyan-400 bg-white/10 hover:bg-white/20 px-4 py-2 rounded-xl text-xs font-bold border border-white/15 transition flex items-center gap-2 z-50">
+        <button onclick="closeSpaceModal()" class="absolute top-6 right-8 text-white hover:text-cyan-400 bg-white/10 hover:bg-white/20 px-4 py-2 rounded-xl text-xs font-bold border border-white/15 transition flex items-center gap-2 z-50 cursor-pointer">
             <span>✕</span> Kapat
         </button>
 
-        <!-- Üst/Orta: Büyük ve Her Yeri Görünecek Şekilde Tam Görsel -->
-        <div class="flex-1 w-full flex items-center justify-center overflow-hidden my-2" onclick="event.stopPropagation()">
-            <img id="space-modal-img" src="" alt="" class="max-w-[94vw] max-h-[78vh] w-auto h-auto object-contain rounded-2xl border border-white/15 shadow-2xl">
+        <!-- Üst/Orta: Büyük Tam Görsel (Karanlık alana tıklayınca kapanır, sadece görsele tıklanırsa kapanmaz) -->
+        <div class="flex-1 w-full flex items-center justify-center overflow-hidden my-2">
+            <img id="space-modal-img" onclick="event.stopPropagation()" src="" alt="" class="max-w-[94vw] max-h-[78vh] w-auto h-auto object-contain rounded-2xl border border-white/15 shadow-2xl cursor-default">
         </div>
 
         <!-- Alt: Okunaklı Açıklama Çubuğu -->
-        <div class="shrink-0 w-full max-w-4xl bg-dark-900/90 border border-white/10 px-8 py-3.5 rounded-2xl text-center shadow-xl backdrop-blur-md" onclick="event.stopPropagation()">
+        <div class="shrink-0 w-full max-w-4xl bg-dark-900/90 border border-white/10 px-8 py-3.5 rounded-2xl text-center shadow-xl backdrop-blur-md cursor-default" onclick="event.stopPropagation()">
             <div class="flex items-center justify-center gap-3 mb-1">
                 <span id="space-modal-badge" class="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30"></span>
                 <h3 id="space-modal-title" class="text-base font-black text-white tracking-tight"></h3>
@@ -1188,11 +1188,14 @@
             modal.style.display = "flex";
         }
 
-        function closeSpaceModal(e) {
-            if (e && e.target && (e.target.id === "space-modal-img" || e.target.closest("#space-modal-img") || e.target.closest(".max-w-4xl"))) {
+                function closeSpaceModal(e) {
+            if (e && e.target && e.target.id === "space-modal-img") {
                 return;
             }
-            document.getElementById("space-fullscreen-modal").style.display = "none";
+            const modal = document.getElementById("space-fullscreen-modal");
+            modal.style.display = "none";
+            modal.classList.add("hidden");
+            modal.classList.remove("flex");
         }
 
         // ÇIKTI KARTLARI MODALI (%75 GÖRSEL - %25 METİN) - İNDEKS TABANLI
