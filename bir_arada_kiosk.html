@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+<html lang="tr" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bir Arada: Hafızadan Geleceğe | İnteraktif Kiosk Terminali</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        dark: {
+                            950: '#030508',
+                            900: '#070a10',
+                            850: '#0c101a',
+                            800: '#121826',
+                            700: '#1e293b',
+                        },
+                        cyan: {
+                            400: '#38bdf8',
+                            500: '#00f0ff',
+                            600: '#0284c7',
+                        },
+                        amber: {
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            background-color: #030508;
+            color: #f1f5f9;
+        }
+
+        .bg-thematic {
+            background-color: #030508;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(0, 240, 255, 0.08) 0%, transparent 45%),
+                radial-gradient(circle at 90% 80%, rgba(245, 158, 11, 0.07) 0%, transparent 45%),
+                linear-gradient(rgba(255, 255, 255, 0.012) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.012) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+        }
+
+        .kiosk-panel {
+            background: rgba(12, 16, 26, 0.85);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 1.25rem;
+        }
+
+        /* Space Tile */
+        .space-tile {
+            position: relative;
+            overflow: hidden;
+            border-radius: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            height: 78px;
+        }
+        .space-tile img {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s ease;
+        }
+        .space-tile:hover img {
+            transform: scale(1.06);
+        }
+        .space-tile .tile-scrim {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, rgba(3, 5, 8, 0.95) 0%, rgba(3, 5, 8, 0.8) 65%, rgba(3, 5, 8, 0.4) 100%);
+            transition: background 0.25s ease;
+        }
+        .space-tile.active {
+            border-color: #00f0ff;
+            box-shadow: 0 0 25px rgba(0, 240, 255, 0.3);
+        }
+        .space-tile.active .tile-scrim {
+            background: linear-gradient(90deg, rgba(2, 40, 60, 0.96) 0%, rgba(3, 5, 8, 0.85) 75%, rgba(3, 5, 8, 0.4) 100%);
+        }
+
+        /* Gallery Cards */
+        .gallery-card {
+            position: relative;
+            overflow: hidden;
+            border-radius: 0.875rem;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.25s ease;
+            cursor: pointer;
+        }
+        .gallery-card.active {
+            border-color: #00f0ff;
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
+            transform: scale(1.02);
+        }
+
+        /* Grid Output Card (2 Kolon) */
+        .output-grid-card {
+            position: relative;
+            border-radius: 0.875rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 0.5rem;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: flex;
+            flex-direction: column;
+        }
+        .output-grid-card:hover {
+            border-color: rgba(0, 240, 255, 0.5);
+            background: rgba(255, 255, 255, 0.06);
+            transform: translateY(-2px);
+        }
+        .output-grid-card img {
+            width: 100%;
+            height: 84px;
+            object-fit: cover;
+            border-radius: 0.625rem;
+            background: #000;
+        }
+
+        /* Large Showcase Cards for Outputs Screens (No Dead Space!) */
+        .showcase-card {
+            background: rgba(12, 16, 26, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1.25rem;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            cursor: pointer;
+            height: 100%;
+        }
+        .showcase-card:hover {
+            border-color: #00f0ff;
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px -5px rgba(0, 240, 255, 0.25);
+        }
+        .showcase-card .img-box {
+            height: 60%;
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+            background: #000;
+        }
+        .showcase-card .img-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        .showcase-card:hover .img-box img {
+            transform: scale(1.05);
+        }
+        .showcase-card .content-box {
+            height: 40%;
+            padding: 1rem 1.2rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background: linear-gradient(180deg, rgba(14, 20, 32, 0.95) 0%, rgba(8, 12, 20, 0.98) 100%);
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        /* Split Output Modal */
+        #output-split-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(2, 4, 7, 0.94);
+            backdrop-filter: blur(16px);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        #output-split-modal.active {
+            display: flex;
+        }
+
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.12); border-radius: 4px; }
+    </style>
+</head>
+<body class="bg-thematic flex flex-col h-screen w-screen overflow-hidden text-slate-100">
+
+    <!-- TOP BAR -->
+    <header class="h-20 bg-dark-950/90 border-b border-white/10 px-8 flex items-center justify-between shrink-0 z-30">
+        <div class="flex items-center gap-4">
+            <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-cyan-500 to-amber-500 flex items-center justify-center text-slate-950 font-black text-lg shadow-lg shadow-cyan-500/20">
+                BA
+            </div>
+            <div>
+                <div class="flex items-center gap-2.5">
+                    <h1 class="text-lg font-extrabold tracking-tight text-white">BİR ARADA</h1>
+                    <span class="text-xs font-mono text-cyan-400">/ HAFIZADAN GELECEĞE</span>
+                    <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-white/5 border border-white/10 text-slate-300">İSTKA 2026</span>
+                    <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/30 text-amber-400">Sultanbeyli Belediyesi</span>
+                </div>
+                <p class="text-xs text-slate-400 mt-0.5 font-light">
+                    Aydos Kalesi Kültürel Mirası • Yeni Medya, Dijital Sanat ve Prototipleme Ekosistemi
+                </p>
+            </div>
+        </div>
+
+        <!-- 6 Exact Verified Output Counters -->
+        <div class="flex items-center gap-6">
+            <div class="hidden lg:flex items-center gap-3 bg-dark-900/90 px-4 py-2 rounded-xl border border-white/5 text-xs font-semibold">
+                <span class="text-slate-300"><strong class="text-cyan-400">24</strong> Dijital Eser</span>
+                <span class="text-slate-600">•</span>
+                <span class="text-slate-300"><strong class="text-amber-400">300</strong> Tasarım</span>
+                <span class="text-slate-600">•</span>
+                <span class="text-slate-300"><strong class="text-cyan-400">160</strong> Prototip</span>
+                <span class="text-slate-600">•</span>
+                <span class="text-slate-300"><strong class="text-amber-400">60</strong> Lisans</span>
+                <span class="text-slate-600">•</span>
+                <span class="text-slate-300"><strong class="text-cyan-400">20</strong> Desen</span>
+            </div>
+
+            <div class="text-right">
+                <div id="live-time" class="text-base font-extrabold text-white font-mono tracking-wider">12:00:00</div>
+                <div id="live-date" class="text-[11px] text-slate-400">5 Kasım 2026</div>
+            </div>
+
+            <button onclick="switchKioskScreen('mekanlar')" class="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 flex items-center justify-center transition active:scale-95">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN VIEWPORT -->
+    <main class="flex-1 p-6 overflow-hidden relative">
+
+        <!-- SCREEN 1: ÜRETİM ALTYAPISI (8 MEKÂN) -->
+        <div id="screen-mekanlar" class="h-full flex gap-5 overflow-hidden">
+            
+            <!-- SOL: Görsel Kart Üzerinde İki Satır Tam Okunaklı Metin -->
+            <div class="w-80 shrink-0 flex flex-col gap-2 overflow-y-auto pr-1">
+                <div id="space-tiles-container" class="space-y-2"></div>
+            </div>
+
+            <!-- ORTA: Büyük Odak Görsel + 2 Farklı Açı Galerisi -->
+            <div class="flex-1 kiosk-panel p-5 flex flex-col overflow-hidden">
+                <div class="flex items-center justify-between pb-3 border-b border-white/10 shrink-0 mb-3">
+                    <div>
+                        <div class="text-[11px] font-mono text-cyan-400 uppercase tracking-wider" id="cur-space-loc"></div>
+                        <h2 id="cur-space-title" class="text-xl font-extrabold text-white tracking-tight"></h2>
+                    </div>
+                    <div class="text-xs font-mono text-slate-400 bg-white/5 px-3 py-1 rounded-lg border border-white/10" id="cur-space-capacity"></div>
+                </div>
+
+                <!-- Primary Large Hero Image -->
+                <div class="flex-1 relative overflow-hidden rounded-xl border border-white/10 bg-dark-900 cursor-pointer" onclick="openHeroSplit()">
+                    <img id="cur-hero-img" src="" alt="" class="w-full h-full object-cover transition duration-700 hover:scale-105">
+                    <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-dark-950 via-dark-950/70 to-transparent p-4 flex items-end justify-between">
+                        <div>
+                            <span id="cur-hero-badge" class="text-[10px] font-bold tracking-wider px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/30"></span>
+                            <p id="cur-hero-caption" class="text-xs text-slate-200 font-medium mt-1"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2 Farklı Açı Galeri Kartları -->
+                <div class="mt-4 pt-3 border-t border-white/10 shrink-0">
+                    <div class="text-xs font-bold text-slate-300 mb-2 flex items-center justify-between">
+                        <span>Mekân Galerisi</span>
+                        <span class="text-[11px] font-mono text-cyan-400">2 Farklı Açı</span>
+                    </div>
+                    <div id="cur-gallery-container" class="grid grid-cols-2 gap-4"></div>
+                </div>
+            </div>
+
+            <!-- SAĞ: SOMUT ÇIKTILAR (2 KOLONLU GRID, ÜSTTE GÖRSEL, ALTTA BAŞLIK) -->
+            <div class="w-84 shrink-0 kiosk-panel p-5 flex flex-col overflow-hidden" style="width: 340px;">
+                <div class="pb-3 border-b border-white/10 shrink-0 mb-3 flex items-center justify-between">
+                    <div>
+                        <div class="text-[10px] font-mono text-amber-400 uppercase tracking-wider">SOMUT ÇIKTILAR</div>
+                        <h3 class="text-sm font-extrabold text-white">Bu Mekânda Üretilenler</h3>
+                    </div>
+                </div>
+
+                <!-- 2 Columns Grid -->
+                <div id="cur-outputs-grid" class="flex-1 grid grid-cols-2 gap-2.5 overflow-y-auto pr-1 content-start"></div>
+            </div>
+
+        </div>
+
+        <!-- SCREEN 2: MERKEZ KROKİSİ (KUŞ BAKIŞI 2B MİMARİ KAT PLANI - TEMSİLİDİR) -->
+        <div id="screen-kroki" class="h-full flex gap-5 overflow-hidden hidden">
+            <!-- Sol: Kuş Bakışı 2B Kat Planı (Basit Teknik Kroki) -->
+            <div class="flex-1 kiosk-panel p-5 flex flex-col overflow-hidden">
+                <div class="flex items-center justify-between pb-3 border-b border-white/10 shrink-0 mb-3">
+                    <div>
+                        <div class="flex items-center gap-2 mb-0.5">
+                            <span class="text-[10px] font-mono text-cyan-400 uppercase tracking-wider">KUŞ BAKIŞI 2B MEKÂN KROKİSİ</span>
+                            <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[10px] font-bold">TEMSİLİDİR</span>
+                        </div>
+                        <h2 class="text-xl font-extrabold text-white tracking-tight">Yeni Medya Eğitim ve Üretim Merkezi Kat Planı (Temsilidir)</h2>
+                    </div>
+                    <div class="text-xs font-mono text-slate-400 bg-white/5 px-3 py-1 rounded-lg border border-white/10">350 m² Toplam Alan • Temsili Şema</div>
+                </div>
+
+                <div class="flex-1 relative overflow-hidden rounded-xl border border-white/10 bg-white cursor-pointer flex items-center justify-center p-2" onclick="openOutputSplitModal('gorseller/ciktilar/merkez_krokisi.jpg', 'Yeni Medya Merkezi Kuş Bakışı 2B Krokisi (Temsilidir)', 'Tesisin 5 ana üretim ve eğitim odasını, duvar hatlarını, kapı açılış yönlerini ve tefriş yerleşimini gösteren temsili mimari kat planı. Yerinde uygulama koşullarına göre revize edilebilir.')">
+                    <!-- Prominent Temsilidir Badge on Image -->
+                    <div class="absolute top-4 left-4 bg-amber-500 text-slate-950 font-black px-3 py-1 rounded-lg text-xs tracking-wider shadow-xl flex items-center gap-1.5 z-20">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                        <span>TEMSİLİ YERLEŞİM KROKİSİDİR</span>
+                    </div>
+                    <img src="gorseller/ciktilar/merkez_krokisi.jpg" alt="Merkez Krokisi" class="w-full h-full object-contain">
+                </div>
+            </div>
+
+            <!-- Sağ: Krokideki 5 Bölgenin Teknik Özellikleri ve Temsilidir Uyarısı -->
+            <div class="w-96 shrink-0 kiosk-panel p-5 flex flex-col justify-between overflow-y-auto pr-1">
+                <div>
+                    <!-- Explicit Temsilidir Notice Box -->
+                    <div class="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-200 text-xs font-medium leading-relaxed mb-4">
+                        ⚠️ <strong>Önemli Not:</strong> Bu mimari yerleşim krokisi <strong>temsilidir</strong>. Kesin mimari rölöve, statik ve tesisat koşullarına göre yerinde uygulama aşamasında revize edilebilir.
+                    </div>
+
+                    <h3 class="text-base font-extrabold text-white mb-1">Mekân Yerleşim Özeti</h3>
+                    <p class="text-xs text-slate-400 font-light mb-3">Temsili kat planında yer alan 5 bağımsız çalışma hacmi:</p>
+
+                    <div class="space-y-2.5">
+                        <div class="p-2.5 rounded-xl bg-white/5 border border-white/10">
+                            <div class="flex items-center justify-between mb-0.5">
+                                <h4 class="text-xs font-bold text-cyan-400">1. Yapay Zekâ Sanat Atölyesi</h4>
+                                <span class="text-[10px] font-mono text-slate-400">70 m²</span>
+                            </div>
+                            <p class="text-[11px] text-slate-300 font-light leading-snug">25 Workstation, VR takip çemberi, oyun ve 3D modelleme alanı.</p>
+                        </div>
+
+                        <div class="p-2.5 rounded-xl bg-white/5 border border-white/10">
+                            <div class="flex items-center justify-between mb-0.5">
+                                <h4 class="text-xs font-bold text-amber-400">2. Prototipleme Atölyesi</h4>
+                                <span class="text-[10px] font-mono text-slate-400">60 m²</span>
+                            </div>
+                            <p class="text-[11px] text-slate-300 font-light leading-snug">3D yazıcılar, lazer kesim tezgâhı, CNC ve montaj masası.</p>
+                        </div>
+
+                        <div class="p-2.5 rounded-xl bg-white/5 border border-white/10">
+                            <div class="flex items-center justify-between mb-0.5">
+                                <h4 class="text-xs font-bold text-purple-400">3. Montaj & Ses Stüdyosu</h4>
+                                <span class="text-[10px] font-mono text-slate-400">30 m²</span>
+                            </div>
+                            <p class="text-[11px] text-slate-300 font-light leading-snug">Akustik yüzer vokal kayıt kabini, Avid Pro Tools ve DaVinci Resolve masası.</p>
+                        </div>
+
+                        <div class="p-2.5 rounded-xl bg-white/5 border border-white/10">
+                            <div class="flex items-center justify-between mb-0.5">
+                                <h4 class="text-xs font-bold text-emerald-400">4. Seminer & Eğitim Salonu</h4>
+                                <span class="text-[10px] font-mono text-slate-400">45 m²</span>
+                            </div>
+                            <p class="text-[11px] text-slate-300 font-light leading-snug">Modüler oturma düzeni, lazer projeksiyon, akıllı tahta ve kritik alanı.</p>
+                        </div>
+
+                        <div class="p-2.5 rounded-xl bg-white/5 border border-white/10">
+                            <div class="flex items-center justify-between mb-0.5">
+                                <h4 class="text-xs font-bold text-slate-300">5. Proje Ofisi & Danışma</h4>
+                                <span class="text-[10px] font-mono text-slate-400">35 m²</span>
+                            </div>
+                            <p class="text-[11px] text-slate-300 font-light leading-snug">İdari koordinasyon, karşılama bankosu ve mentör görüşme odası.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-3 border-t border-white/10 text-[11px] text-slate-400 font-mono flex items-center justify-between">
+                    <span>Recep Tayyip Erdoğan Kompleksi</span>
+                    <span class="text-cyan-400 font-bold">1. Kat (Temsili)</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- SCREEN 3: 24 DİJİTAL ESER (OYUN, UYGULAMA, VR, 3D MODEL, MAPPING, AR, ENSTALASYON) -->
+        <div id="screen-sanat" class="h-full flex flex-col gap-4 overflow-hidden hidden">
+            <div class="flex items-center justify-between shrink-0">
+                <div>
+                    <h2 class="text-xl font-extrabold text-white tracking-tight">24 Dijital Eser ve Yazılım Varlığı</h2>
+                    <p class="text-xs text-slate-400 font-light">Dijital Oyunlar • Mobil Uygulama • VR Simülasyonu • 3D Modeller • Projeksiyon Mapping • AR Rekonstrüksiyon</p>
+                </div>
+                <span class="text-xs font-bold text-cyan-400 bg-cyan-500/10 border border-cyan-500/30 px-3 py-1 rounded-lg">24 Dijital Çıktı</span>
+            </div>
+
+            <div class="flex-1 grid grid-cols-4 gap-4 overflow-hidden">
+                <!-- 1. Dijital Oyunlar -->
+                <div class="showcase-card" onclick="openOutputSplitModal('gorseller/ciktilar/oyun_ekrani.jpg', '7 Aydos Dijital Oyunu', 'Yapay zekâ araçlarıyla geliştirilen 5–15 dakikalık oynanabilir mini strateji, keşif, simülasyon ve puzzle oyunları.')">
+                    <div class="img-box">
+                        <img src="gorseller/ciktilar/oyun_ekrani.jpg" alt="7 Dijital Oyun">
+                        <div class="absolute top-3 left-3 bg-dark-950/80 backdrop-blur px-2.5 py-1 rounded-md text-[10px] font-mono text-amber-400 font-bold border border-amber-500/30">7 Oyun</div>
+                    </div>
+                    <div class="content-box">
+                        <h4 class="text-base font-extrabold text-white">7 Dijital Oyun</h4>
+                        <p class="text-xs text-slate-300 font-light mt-1 line-clamp-2">Kuşatma, Arkeolog ve Zaman Yolculuğu oynanabilir oyunları.</p>
+                    </div>
+                </div>
+
+                <!-- 2. Mobil Uygulama -->
+                <div class="showcase-card" onclick="openOutputSplitModal('gorseller/ciktilar/mobil_uygulama.jpg', 'Mobil Keşif Uygulaması', 'Aydos Kalesi ziyaretçileri için etkileşimli 3B harita, sesli rehber ve AR kamera modülü içeren mobil uygulama.')">
+                    <div class="img-box">
+                        <img src="gorseller/ciktilar/mobil_uygulama.jpg" alt="Mobil Uygulama">
+                        <div class="absolute top-3 left-3 bg-dark-950/80 backdrop-blur px-2.5 py-1 rounded-md text-[10px] font-mono text-cyan-400 font-bold border border-cyan-500/30">Mobil Yazılım</div>
+                    </div>
+                    <div class="content-box">
+                        <h4 class="text-base font-extrabold text-white">Mobil Keşif Uygulaması</h4>
+                        <p class="text-xs text-slate-300 font-light mt-1 line-clamp-2">İnteraktif harita, sesli rehber ve AR modülü içeren yazılım.</p>
+                    </div>
+                </div>
+
+                <!-- 3. VR Deneyimi -->
+                <div class="showcase-card" onclick="openOutputSplitModal('gorseller/ciktilar/vr_deneyimi.jpg', 'Sanal Gerçeklik (VR) Simülasyonu', 'Ziyaretçilerin Aydos surlarında sanal olarak gezindiği birinci şahıs VR keşif ve etkileşim simülasyonu.')">
+                    <div class="img-box">
+                        <img src="gorseller/ciktilar/vr_deneyimi.jpg" alt="VR Deneyimi">
+                        <div class="absolute top-3 left-3 bg-dark-950/80 backdrop-blur px-2.5 py-1 rounded-md text-[10px] font-mono text-purple-400 font-bold border border-purple-500/30">VR Simülasyonu</div>
+                    </div>
+                    <div class="content-box">
+                        <h4 class="text-base font-extrabold text-white">VR Simülasyonu</h4>
+                        <p class="text-xs text-slate-300 font-light mt-1 line-clamp-2">Surlarda 360 derece gezinme ve sanal etkileşim deneyimi.</p>
+                    </div>
+                </div>
+
+                <!-- 4. 3D Mimari & Karakter Modelleri -->
+                <div class="showcase-card" onclick="openOutputSplitModal('gorseller/ciktilar/3d_modeller.jpg', '3B Mimari ve Karakter Modelleri', 'Kalenin surları, kuleleri, tarihi karakterleri ve arkeolojik buluntularının wireframe ve 8K PBR kaplamalı dijital varlık kütüphanesi.')">
+                    <div class="img-box">
+                        <img src="gorseller/ciktilar/3d_modeller.jpg" alt="3B Modeller">
+                        <div class="absolute top-3 left-3 bg-dark-950/80 backdrop-blur px-2.5 py-1 rounded-md text-[10px] font-mono text-emerald-400 font-bold border border-emerald-500/30">3B Asset Kütüphanesi</div>
+                    </div>
+                    <div class="content-box">
+                        <h4 class="text-base font-extrabold text-white">3B Mimari & Varlıklar</h4>
+                        <p class="text-xs text-slate-300 font-light mt-1 line-clamp-2">Kalenin 8K PBR kaplamalı 3B model ve karakter arşivi.</p>
+                    </div>
+                </div>
+
+                <!-- 5. 8 Dijital Sanat Kompozisyonu -->
+                <div class="showcase-card" onclick="openOutputSplitModal('gorseller/05_Aydos_Kalesi_Kapali_Sergi_Salonu/kalici_dijital_sergi_mapping_1.jpg', '8 Tematik Dijital Sanat Eseri', 'Kuşatmadan fethe Aydos tarihini canlandıran projeksiyon mapping, hologram ve çok kanallı ses kompozisyonları.')">
+                    <div class="img-box">
+                        <img src="gorseller/05_Aydos_Kalesi_Kapali_Sergi_Salonu/kalici_dijital_sergi_mapping_1.jpg" alt="8 Dijital Sanat">
+                        <div class="absolute top-3 left-3 bg-dark-950/80 backdrop-blur px-2.5 py-1 rounded-md text-[10px] font-mono text-cyan-400 font-bold border border-cyan-500/30">8 Eser</div>
+                    </div>
+                    <div class="content-box">
+                        <h4 class="text-base font-extrabold text-white">8 Tematik Dijital Sanat</h4>
+                        <p class="text-xs text-slate-300 font-light mt-1 line-clamp-2">Zorlu Bekleyiş'ten Fethe 8 projeksiyon mapping eseri.</p>
+                    </div>
+                </div>
+
+                <!-- 6. 5 AR Rekonstrüksiyon -->
+                <div class="showcase-card" onclick="openOutputSplitModal('gorseller/ciktilar/ar_kilise_rekonstruksiyon.jpg', '5 AR Rekonstrüksiyon Eseri', 'Kalenin sur, kilise, sarnıç ve ambar kalıntıları üzerinde çalışan mobil 3B artırılmış gerçeklik tamamlama modelleri.')">
+                    <div class="img-box">
+                        <img src="gorseller/ciktilar/ar_kilise_rekonstruksiyon.jpg" alt="5 AR Rekonstrüksiyon">
+                        <div class="absolute top-3 left-3 bg-dark-950/80 backdrop-blur px-2.5 py-1 rounded-md text-[10px] font-mono text-amber-400 font-bold border border-amber-500/30">5 AR Noktası</div>
+                    </div>
+                    <div class="content-box">
+                        <h4 class="text-base font-extrabold text-white">5 AR Rekonstrüksiyon</h4>
+                        <p class="text-xs text-slate-300 font-light mt-1 line-clamp-2">Kilise, sarnıç, ambar ve surların 3B canlandırması.</p>
+                    </div>
+                </div>
+
+                <!-- 7. 4 Dijital Enstalasyon -->
+                <div class="showcase-card" onclick="openOutputSplitModal('gorseller/06_Aydos_Kalesi_Acik_Hava_AR_ve_Enstalasyon/mekana_ozgu_dijital_enstalasyon_2.jpg', '4 Dijital Enstalasyon Eseri', 'Kalenin 4 noktasında taş dokuya fiziksel zarar vermeyen sökülebilir ışık, sensör ve mekânsal ses yerleştirmeleri.')">
+                    <div class="img-box">
+                        <img src="gorseller/06_Aydos_Kalesi_Acik_Hava_AR_ve_Enstalasyon/mekana_ozgu_dijital_enstalasyon_2.jpg" alt="4 Enstalasyon">
+                        <div class="absolute top-3 left-3 bg-dark-950/80 backdrop-blur px-2.5 py-1 rounded-md text-[10px] font-mono text-purple-400 font-bold border border-purple-500/30">4 Enstalasyon</div>
+                    </div>
+                    <div class="content-box">
+                        <h4 class="text-base font-extrabold text-white">4 Dijital Enstalasyon</h4>
+                        <p class="text-xs text-slate-300 font-light mt-1 line-clamp-2">Kalede taş dokuya duyarlı ışık ve ses yerleştirmeleri.</p>
+                    </div>
+                </div>
+
+                <!-- 8. Aydos Dijital Arşivi -->
+                <div class="showcase-card" onclick="openOutputSplitModal('gorseller/ciktilar/dijital_arsiv_arayuzu.jpg', 'Aydos Kalesi Dijital Arşivi', 'Kalenin tarihî, mimari, arkeolojik ve rölöve belgelerinin toplandığı 3B veri tabanı ve yazılım altyapısı.')">
+                    <div class="img-box">
+                        <img src="gorseller/ciktilar/dijital_arsiv_arayuzu.jpg" alt="Dijital Arşiv">
+                        <div class="absolute top-3 left-3 bg-dark-950/80 backdrop-blur px-2.5 py-1 rounded-md text-[10px] font-mono text-cyan-400 font-bold border border-cyan-500/30">Yazılım</div>
+                    </div>
+                    <div class="content-box">
+                        <h4 class="text-base font-extrabold text-white">Aydos Dijital Arşivi</h4>
+                        <p class="text-xs text-slate-300 font-light mt-1 line-clamp-2">Tarihî belgelerin 3B veri tabanı ve yazılımı.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SCREEN 4: GENÇ TASARIMLAR & LİSANS (SADE ÜRÜN GÖRSELLERİ İLE DETAYLANDIRILMIŞ) -->
+        <div id="screen-tasarimlar" class="h-full flex flex-col gap-4 overflow-hidden hidden">
+            <div class="flex items-center justify-between shrink-0">
+                <div>
+                    <h2 class="text-xl font-extrabold text-white tracking-tight">Genç Tasarımlar, Prototipler & Lisanslar</h2>
+                    <p class="text-xs text-slate-400 font-light">300 Tasarım • 160 Prototip • 60 Lisanslı Ürün • 160 Portfolyo</p>
+                </div>
+                <span class="text-xs font-bold text-amber-400 bg-amber-500/10 border border-amber-500/30 px-3 py-1 rounded-lg">Fikrî Mülkiyet</span>
+            </div>
+
+            <div class="flex-1 grid grid-cols-4 gap-4 overflow-hidden">
+                <!-- 1. 300 Tasarım -->
+                <div class="showcase-card" onclick="openOutputSplitModal('gorseller/ciktilar/tasarim_eskizleri.jpg', '300 Tasarlanan Eser ve Fikir', '160 gencin mentörlük ve sanatsal kritik desteğiyle geliştirdiği konsept çizimler, dijital illüstrasyonlar ve tasarım eskizleri.')">
+                    <div class="img-box bg-dark-900 flex items-center justify-center">
+                        <img src="gorseller/ciktilar/tasarim_eskizleri.jpg" alt="300 Tasarım">
+                        <div class="absolute top-3 left-3 bg-dark-950/80 backdrop-blur px-2.5 py-1 rounded-md text-[10px] font-mono text-cyan-400 font-bold border border-cyan-500/30">300 Tasarım</div>
+                    </div>
+                    <div class="content-box">
+                        <h4 class="text-base font-extrabold text-white">300 Özgün Tasarım</h4>
+                        <p class="text-xs text-slate-300 font-light mt-1 line-clamp-2">Konsept eskizler, illüstrasyonlar ve dijital tasarım dosyaları.</p>
+                    </div>
+                </div>
+
+                <!-- 2. 160 Prototip -->
+                <div class="showcase-card" onclick="openOutputSplitModal('gorseller/ciktilar/prototip_numuneler_beyaz_fon.jpg', '160 Üretilen Prototip ve Numune', '3D yazıcı, CNC ve zanaat araçlarıyla somutlaştırılmış, test edilebilir fiziksel ve dijital ürün numuneleri.')">
+                    <div class="img-box bg-white flex items-center justify-center p-3">
+                        <img src="gorseller/ciktilar/prototip_numuneler_beyaz_fon.jpg" alt="160 Prototip" class="!object-contain">
+                        <div class="absolute top-3 left-3 bg-dark-950/80 backdrop-blur px-2.5 py-1 rounded-md text-[10px] font-mono text-amber-400 font-bold border border-amber-500/30">160 Numune</div>
+                    </div>
+                    <div class="content-box">
+                        <h4 class="text-base font-extrabold text-white">160 Üretilen Prototip</h4>
+                        <p class="text-xs text-slate-300 font-light mt-1 line-clamp-2">Beyaz fonda 3B baskı mimari parçalar ve test numuneleri.</p>
+                    </div>
+                </div>
+
+                <!-- 3. 60 Lisanslı Ürün -->
+                <div class="showcase-card" onclick="openOutputSplitModal('gorseller/ciktilar/lisansli_urun_seti_beyaz_fon.jpg', '60 Lisanslanan Ürün', 'Telif hakkı, marka veya tasarım tescili alınarak ticari kullanıma ve telifli dolaşıma hazır ürün portföyü.')">
+                    <div class="img-box bg-white flex items-center justify-center p-3">
+                        <img src="gorseller/ciktilar/lisansli_urun_seti_beyaz_fon.jpg" alt="60 Lisanslı Ürün" class="!object-contain">
+                        <div class="absolute top-3 left-3 bg-dark-950/80 backdrop-blur px-2.5 py-1 rounded-md text-[10px] font-mono text-emerald-400 font-bold border border-emerald-500/30">60 Tescilli</div>
+                    </div>
+                    <div class="content-box">
+                        <h4 class="text-base font-extrabold text-white">60 Lisanslı Ürün</h4>
+                        <p class="text-xs text-slate-300 font-light mt-1 line-clamp-2">Telif ve tasarım tescili alınmış ticari ürün portföyü.</p>
+                    </div>
+                </div>
+
+                <!-- 4. 160 Portfolyo -->
+                <div class="showcase-card" onclick="openOutputSplitModal('gorseller/ciktilar/dijital_katalog.jpg', '160 Tasarımcı Portfolyosu', 'Gençlerin sektörel istihdam ve freelance başvurularda kullanacağı profesyonel dijital portfolyo ve showreel dosyaları.')">
+                    <div class="img-box">
+                        <img src="gorseller/ciktilar/dijital_katalog.jpg" alt="160 Portfolyo">
+                        <div class="absolute top-3 left-3 bg-dark-950/80 backdrop-blur px-2.5 py-1 rounded-md text-[10px] font-mono text-purple-400 font-bold border border-purple-500/30">160 Portfolyo</div>
+                    </div>
+                    <div class="content-box">
+                        <h4 class="text-base font-extrabold text-white">160 Portfolyo & Sunum</h4>
+                        <p class="text-xs text-slate-300 font-light mt-1 line-clamp-2">Gençlerin sektörel istihdam ve showreel dosyaları.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SCREEN 5: AYDOS SANAT TOPLULUĞU VE FAALİYETLERİ (AÇIKLAMALI GÖRSEL KARTLAR) -->
+        <div id="screen-topluluk" class="h-full flex flex-col gap-4 overflow-hidden hidden">
+            <div class="flex items-center justify-between shrink-0">
+                <div>
+                    <h2 class="text-xl font-extrabold text-white tracking-tight">Aydos Sanat Topluluğu ve Faaliyetleri</h2>
+                    <p class="text-xs text-slate-400 font-light">Yerel Sanatçılar • Tasarımcılar • Yaratıcı Atölyeler • Sanat Günleri • Festival Ağı</p>
+                </div>
+                <span class="text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-3 py-1 rounded-lg">Kalıcı Sanat Ekosistemi</span>
+            </div>
+
+            <div class="flex-1 grid grid-cols-4 gap-4 overflow-hidden">
+                <!-- 1. Sanat Topluluğu Ağı -->
+                <div class="showcase-card" onclick="openOutputSplitModal('gorseller/ciktilar/sanat_toplulugu_agi.jpg', 'Aydos Sanat Topluluğu Ağı', 'Sultanbeyli\'deki yerel sanatçıları, genç tasarımcıları, zanaatkârları ve akademisyenleri ortak üretim zemininde buluşturan kalıcı organizasyonel ağ ve üye veri tabanı.')">
+                    <div class="img-box">
+                        <img src="gorseller/ciktilar/sanat_toplulugu_agi.jpg" alt="Sanat Topluluğu Ağı">
+                        <div class="absolute top-3 left-3 bg-dark-950/80 backdrop-blur px-2.5 py-1 rounded-md text-[10px] font-mono text-cyan-400 font-bold border border-cyan-500/30">Topluluk Ağı</div>
+                    </div>
+                    <div class="content-box">
+                        <h4 class="text-base font-extrabold text-white">Sanat Topluluğu Ağı</h4>
+                        <p class="text-xs text-slate-300 font-light mt-1 line-clamp-2">Yerel sanatçı ve gençleri buluşturan sürdürülebilir organizasyon ağı.</p>
+                    </div>
+                </div>
+
+                <!-- 2. Yaratıcı Sanat Atölyeleri -->
+                <div class="showcase-card" onclick="openOutputSplitModal('gorseller/02_Prototipleme_ve_Uretim_Atolyesi/prototip_lazer_3d_ve_zanaat_1.jpg', 'Yaratıcı Sanat Atölyeleri', 'Hafta sonları 3 farklı temada (geleneksel motifler, dijital zanaat, seramik ve ahşap) 15\'er kişilik gruplarla düzenlenen 20 uygulamalı atölye çalışması.')">
+                    <div class="img-box">
+                        <img src="gorseller/02_Prototipleme_ve_Uretim_Atolyesi/prototip_lazer_3d_ve_zanaat_1.jpg" alt="Sanat Atölyeleri">
+                        <div class="absolute top-3 left-3 bg-dark-950/80 backdrop-blur px-2.5 py-1 rounded-md text-[10px] font-mono text-amber-400 font-bold border border-amber-500/30">20 Atölye • 300 Kişi</div>
+                    </div>
+                    <div class="content-box">
+                        <h4 class="text-base font-extrabold text-white">Yaratıcı Sanat Atölyeleri</h4>
+                        <p class="text-xs text-slate-300 font-light mt-1 line-clamp-2">3 farklı temada 20 uygulamalı zanaat ve tasarım atölyesi.</p>
+                    </div>
+                </div>
+
+                <!-- 3. Aydos Sanat Günleri Söyleşileri -->
+                <div class="showcase-card" onclick="openOutputSplitModal('gorseller/08_Aydos_Sanat_Gunleri_Soylesi_Salonu/sanat_gunleri_ogrenci_soylesisi_1.jpg', 'Aydos Sanat Günleri Söyleşileri', 'İki ayda bir usta sanatçılar ve küratörlerle düzenlenen 6 söyleşi günü (18 oturum). Sabah öğrenci masterclass oturumu, öğleden sonra halka açık sanat paneli.')">
+                    <div class="img-box">
+                        <img src="gorseller/08_Aydos_Sanat_Gunleri_Soylesi_Salonu/sanat_gunleri_ogrenci_soylesisi_1.jpg" alt="Sanat Günleri Söyleşi">
+                        <div class="absolute top-3 left-3 bg-dark-950/80 backdrop-blur px-2.5 py-1 rounded-md text-[10px] font-mono text-purple-400 font-bold border border-purple-500/30">18 Söyleşi Oturumu</div>
+                    </div>
+                    <div class="content-box">
+                        <h4 class="text-base font-extrabold text-white">Sanat Günleri Söyleşileri</h4>
+                        <p class="text-xs text-slate-300 font-light mt-1 line-clamp-2">12 usta sanatçı ile 18 oturumda masterclass ve açık paneller.</p>
+                    </div>
+                </div>
+
+                <!-- 4. Sanat ve Tasarım Festivali -->
+                <div class="showcase-card" onclick="openOutputSplitModal('gorseller/07_Aydos_Sanat_ve_Tasarim_Festivali/festival_ve_tasarim_yarismasi_ana_alan_1.jpg', 'Aydos Sanat ve Tasarım Festivali', '2.000 kişinin katıldığı, Aydos Tasarım Yarışması ödül töreni, dev LED açık hava sergisi, çocuk arkeoloji kazı atölyesi ve hazine avı etkinlikleri.')">
+                    <div class="img-box">
+                        <img src="gorseller/07_Aydos_Sanat_ve_Tasarim_Festivali/festival_ve_tasarim_yarismasi_ana_alan_1.jpg" alt="Sanat Festivali">
+                        <div class="absolute top-3 left-3 bg-dark-950/80 backdrop-blur px-2.5 py-1 rounded-md text-[10px] font-mono text-emerald-400 font-bold border border-emerald-500/30">2 Gün • 2.000 Katılım</div>
+                    </div>
+                    <div class="content-box">
+                        <h4 class="text-base font-extrabold text-white">Sanat & Tasarım Festivali</h4>
+                        <p class="text-xs text-slate-300 font-light mt-1 line-clamp-2">Tasarım yarışması ödül töreni, açık hava sergileri ve atölyeler.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SCREEN 6: AYDOS KOLEKSİYONU & YAYIN -->
+        <div id="screen-koleksiyon" class="h-full flex flex-col gap-4 overflow-hidden hidden">
+            <div class="flex items-center justify-between shrink-0">
+                <div>
+                    <h2 class="text-xl font-extrabold text-white tracking-tight">Aydos Koleksiyonu ve Fiziksel Ürünler</h2>
+                    <p class="text-xs text-slate-400 font-light">20 Özgün Desen • 16 Ürün Grubu • Kamusal Donatılar • E-Katalog</p>
+                </div>
+                <div class="flex gap-2 text-xs font-mono">
+                    <span class="text-amber-400 bg-amber-500/10 border border-amber-500/30 px-3 py-1 rounded-lg">20 Desen</span>
+                    <span class="text-cyan-400 bg-cyan-500/10 border border-cyan-500/30 px-3 py-1 rounded-lg">Kamusal Donatılar</span>
+                </div>
+            </div>
+
+            <div class="flex-1 grid grid-cols-4 gap-4 overflow-hidden">
+                <div class="showcase-card" onclick="openOutputSplitModal('gorseller/ciktilar/ahsap_panel_beyaz_fon.jpg', 'Geometrik Ahşap Paneller', 'Selçuklu taş oyma motiflerinden üretilen lazer kesim modüler ahşap kafes paneller.')">
+                    <div class="img-box bg-white flex items-center justify-center p-3">
+                        <img src="gorseller/ciktilar/ahsap_panel_beyaz_fon.jpg" alt="Ahşap Paneller" class="!object-contain">
+                        <div class="absolute top-3 left-3 bg-dark-950/80 backdrop-blur px-2.5 py-1 rounded-md text-[10px] font-mono text-cyan-400 font-bold border border-cyan-500/30">Desen 01-05</div>
+                    </div>
+                    <div class="content-box">
+                        <h4 class="text-base font-extrabold text-white">Ahşap Paneller</h4>
+                        <p class="text-xs text-slate-300 font-light mt-1 line-clamp-2">Selçuklu taş oyma motiflerinden üretilen modüler ahşap paneller.</p>
+                    </div>
+                </div>
+
+                <div class="showcase-card" onclick="openOutputSplitModal('gorseller/ciktilar/maket_beyaz_fon.jpg', '3D Kalıntı Maket Serisi', 'Kalenin sur ve kulelerinin 3B yazıcı ile üretilmiş ölçekli replikaları.')">
+                    <div class="img-box bg-white flex items-center justify-center p-3">
+                        <img src="gorseller/ciktilar/maket_beyaz_fon.jpg" alt="3D Maket" class="!object-contain">
+                        <div class="absolute top-3 left-3 bg-dark-950/80 backdrop-blur px-2.5 py-1 rounded-md text-[10px] font-mono text-amber-400 font-bold border border-amber-500/30">Desen 06-10</div>
+                    </div>
+                    <div class="content-box">
+                        <h4 class="text-base font-extrabold text-white">3D Kalıntı Maketleri</h4>
+                        <p class="text-xs text-slate-300 font-light mt-1 line-clamp-2">Kalenin sur ve kulelerinin 3B yazıcı ile üretilmiş replikaları.</p>
+                    </div>
+                </div>
+
+                <div class="showcase-card" onclick="openOutputSplitModal('gorseller/ciktilar/kamusal_donatilar.jpg', 'Kamusal Sanat Donatıları', 'Superpool mekânsal danışmanlığı ile Aydos Kalesi ve kültür rotası boyunca konumlandırılacak kamusal sanatsal yerleştirmeler ve açık hava oturma/deneyim donatıları.')">
+                    <div class="img-box">
+                        <img src="gorseller/ciktilar/kamusal_donatilar.jpg" alt="Kamusal Donatılar">
+                        <div class="absolute top-3 left-3 bg-dark-950/80 backdrop-blur px-2.5 py-1 rounded-md text-[10px] font-mono text-emerald-400 font-bold border border-emerald-500/30">Superpool Danışmanlığı</div>
+                    </div>
+                    <div class="content-box">
+                        <h4 class="text-base font-extrabold text-white">Kamusal Sanat Donatıları</h4>
+                        <p class="text-xs text-slate-300 font-light mt-1 line-clamp-2">Aydos rotası sanatsal yerleştirme ve açık hava deneyim donatıları.</p>
+                    </div>
+                </div>
+
+                <div class="showcase-card" onclick="openOutputSplitModal('gorseller/ciktilar/lisansli_urun_seti_beyaz_fon.jpg', '16 Ticari Ürün Grubu & E-Katalog', 'Tescil belgeli porselen kupa, broş, deri ajanda, fular ve seramik koleksiyonu ile dijital proje kataloğu.')">
+                    <div class="img-box bg-white flex items-center justify-center p-3">
+                        <img src="gorseller/ciktilar/lisansli_urun_seti_beyaz_fon.jpg" alt="Lisanslı Ürün Seti" class="!object-contain">
+                        <div class="absolute top-3 left-3 bg-dark-950/80 backdrop-blur px-2.5 py-1 rounded-md text-[10px] font-mono text-cyan-400 font-bold border border-cyan-500/30">16 Ürün Grubu</div>
+                    </div>
+                    <div class="content-box">
+                        <h4 class="text-base font-extrabold text-white">16 Ticari Ürün Grubu</h4>
+                        <p class="text-xs text-slate-300 font-light mt-1 line-clamp-2">Kupa, rozet, ajanda, fular ve seramik koleksiyonu.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- FOOTER NAVİGASYONU (MERKEZ KROKİSİ VE SANAT TOPLULUĞU DAHİL 6 BUTON) -->
+    <footer class="h-20 bg-dark-950/90 border-t border-white/10 px-8 flex items-center justify-between shrink-0 z-30">
+        <nav class="flex items-center gap-2.5">
+            <button onclick="switchKioskScreen('mekanlar')" id="kiosk-nav-mekanlar" class="px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition active:scale-95 bg-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/25">
+                <span>ÜRETİM ALTYAPISI</span>
+            </button>
+
+            <button onclick="switchKioskScreen('kroki')" id="kiosk-nav-kroki" class="px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition active:scale-95 bg-white/5 text-slate-300 hover:bg-white/10">
+                <span>MERKEZ KROKİSİ</span>
+            </button>
+
+            <button onclick="switchKioskScreen('sanat')" id="kiosk-nav-sanat" class="px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition active:scale-95 bg-white/5 text-slate-300 hover:bg-white/10">
+                <span>24 DİJİTAL ESER</span>
+            </button>
+
+            <button onclick="switchKioskScreen('tasarimlar')" id="kiosk-nav-tasarimlar" class="px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition active:scale-95 bg-white/5 text-slate-300 hover:bg-white/10">
+                <span>GENÇ TASARIMLAR</span>
+            </button>
+
+            <button onclick="switchKioskScreen('topluluk')" id="kiosk-nav-topluluk" class="px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition active:scale-95 bg-white/5 text-slate-300 hover:bg-white/10">
+                <span>SANAT TOPLULUĞU</span>
+            </button>
+
+            <button onclick="switchKioskScreen('koleksiyon')" id="kiosk-nav-koleksiyon" class="px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition active:scale-95 bg-white/5 text-slate-300 hover:bg-white/10">
+                <span>AYDOS KOLEKSİYONU</span>
+            </button>
+        </nav>
+
+        <div class="text-right">
+            <div class="text-[11px] font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2 justify-end">
+                <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+                Koyu Oda Terminali
+            </div>
+            <div class="text-[10px] font-mono text-slate-500">Sultanbeyli Belediyesi & İSTKA 2026</div>
+        </div>
+    </footer>
+
+    <!-- 1. MEKÂN ANA GÖRSELİ TAM EKRAN MODAL (GÖRSEL DAHA BÜYÜK + ALTI AÇIKLAMA) -->
+    <div id="space-fullscreen-modal" class="hidden fixed inset-0 bg-dark-950/95 backdrop-blur-2xl z-[9999] flex-col items-center justify-between p-6 select-none" onclick="closeSpaceModal(event)">
+        <!-- Kapat Butonu -->
+        <button onclick="closeSpaceModal()" class="absolute top-6 right-8 text-white hover:text-cyan-400 bg-white/10 hover:bg-white/20 px-4 py-2 rounded-xl text-xs font-bold border border-white/15 transition flex items-center gap-2 z-50">
+            <span>✕</span> Kapat
+        </button>
+
+        <!-- Üst/Orta: Büyük ve Her Yeri Görünecek Şekilde Tam Görsel -->
+        <div class="flex-1 w-full flex items-center justify-center overflow-hidden my-2" onclick="event.stopPropagation()">
+            <img id="space-modal-img" src="" alt="" class="max-w-[94vw] max-h-[78vh] w-auto h-auto object-contain rounded-2xl border border-white/15 shadow-2xl">
+        </div>
+
+        <!-- Alt: Okunaklı Açıklama Çubuğu -->
+        <div class="shrink-0 w-full max-w-4xl bg-dark-900/90 border border-white/10 px-8 py-3.5 rounded-2xl text-center shadow-xl backdrop-blur-md" onclick="event.stopPropagation()">
+            <div class="flex items-center justify-center gap-3 mb-1">
+                <span id="space-modal-badge" class="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30"></span>
+                <h3 id="space-modal-title" class="text-base font-black text-white tracking-tight"></h3>
+            </div>
+            <p id="space-modal-caption" class="text-xs text-slate-200 font-medium leading-relaxed"></p>
+        </div>
+    </div>
+
+    <!-- 2. SOMUT ÇIKTI MODALI (%75 BÜYÜK GÖRSEL - %25 METİN ALANI) -->
+    <div id="output-split-modal" class="hidden fixed inset-0 bg-dark-950/95 backdrop-blur-2xl z-[9999] items-center justify-center p-6 select-none" onclick="closeOutputSplitModal(event)">
+        <div class="kiosk-panel p-6 max-w-6xl w-full h-[85vh] max-h-[85vh] flex gap-6 border-white/20 shadow-2xl relative" onclick="event.stopPropagation()">
+            <!-- Kapat Butonu -->
+            <button onclick="closeOutputSplitModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-base font-bold bg-white/5 hover:bg-white/10 w-9 h-9 rounded-xl flex items-center justify-center z-50">✕</button>
+
+            <!-- Sol: %75 BÜYÜK GÖRSEL ALANI -->
+            <div class="w-[75%] rounded-2xl overflow-hidden bg-black/80 border border-white/10 flex items-center justify-center p-3 relative">
+                <img id="modal-split-img" src="" alt="" class="w-full h-full object-contain max-h-[78vh]">
+            </div>
+
+            <!-- Sağ: %25 METİN ALANI -->
+            <div class="w-[25%] flex flex-col justify-between py-2 shrink-0 border-l border-white/10 pl-5">
+                <div>
+                    <div class="text-[10px] font-mono text-cyan-400 uppercase tracking-wider mb-1" id="modal-split-tag">Somut Çıktı</div>
+                    <h3 id="modal-split-title" class="text-lg font-black text-white mb-3 leading-tight"></h3>
+                    <p id="modal-split-desc" class="text-xs text-slate-300 font-light leading-relaxed"></p>
+                </div>
+
+                <div class="pt-4 border-t border-white/10 flex flex-col gap-1 text-[11px] text-slate-400 font-mono">
+                    <span class="text-slate-500">Sultanbeyli Belediyesi & İSTKA</span>
+                    <span class="text-emerald-400 font-bold">Doğrulanmış Çıktı ✓</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT -->
+    <script>
+                const darkKioskSpaces = [
+            {
+                id: "01",
+                nameL1: "Yapay Zekâ",
+                nameL2: "Sanat Atölyesi",
+                loc: "Recep Tayyip Erdoğan Kültür Kompleksi",
+                capacity: "25 Workstation • 70 m²",
+                img1: {
+                    src: "gorseller/01_Bilisim_ve_Dijital_Tasarim_Laboratuvari/bilisim_tasarim_genel_egitim_1.jpg",
+                    caption: "Bilişim Laboratuvarı Genel Çalışma Düzeni ve AI Sunucu Kabinleri"
+                },
+                img2: {
+                    src: "gorseller/01_Bilisim_ve_Dijital_Tasarim_Laboratuvari/bilisim_vr_ve_3d_modelleme_2.jpg",
+                    caption: "VR Takip Çemberi ve 3B Modelleme İstasyonları"
+                },
+                outputs: [
+                    {
+                        title: "7 Dijital Oyun",
+                        desc: "Yapay zekâ araçlarıyla geliştirilen 5–15 dakikalık oynanabilir mini strateji, macera, simülasyon ve bulmaca oyunları.",
+                        img: "gorseller/ciktilar/oyun_ekrani.jpg"
+                    },
+                    {
+                        title: "8 Tematik Dijital Sanat",
+                        desc: "Kuşatmadan fethe Aydos tarihini canlandıran projeksiyon mapping, hologram ve çok kanallı ses kompozisyonları.",
+                        img: "gorseller/05_Aydos_Kalesi_Kapali_Sergi_Salonu/kalici_dijital_sergi_mapping_1.jpg"
+                    },
+                    {
+                        title: "5 AR & Mobil Uygulama",
+                        desc: "Kalenin sur, kilise, sarnıç ve ambar kalıntıları üzerinde çalışan mobil 3B dijital tamamlama modelleri.",
+                        img: "gorseller/ciktilar/ar_kilise_rekonstruksiyon.jpg"
+                    },
+                    {
+                        title: "Aydos Dijital Arşivi",
+                        desc: "Kalenin tüm tarihî, mimari, arkeolojik ve rölöve belgelerinin toplandığı 3B veri tabanı ve yazılım altyapısı.",
+                        img: "gorseller/ciktilar/dijital_arsiv_arayuzu.jpg"
+                    }
+                ]
+            },
+            {
+                id: "02",
+                nameL1: "Prototipleme",
+                nameL2: "Atölyesi",
+                loc: "Recep Tayyip Erdoğan Kültür Kompleksi",
+                capacity: "15–20 Kişi • 60 m²",
+                img1: {
+                    src: "gorseller/02_Prototipleme_ve_Uretim_Atolyesi/prototip_lazer_3d_ve_zanaat_1.jpg",
+                    caption: "Lazer Kesim ve 3D Baskı ile Selçuklu Ahşap Motif Üretim Masası"
+                },
+                img2: {
+                    src: "gorseller/02_Prototipleme_ve_Uretim_Atolyesi/prototip_elektronik_ve_maket_2.jpg",
+                    caption: "Elektronik Lehimleme Tezgâhı ve 3D Baskı Aydos Kalıntı Maketleri"
+                },
+                outputs: [
+                    {
+                        title: "160 Fiziksel Prototip",
+                        desc: "Genç tasarımcıların 3D yazıcı, CNC ve zanaat araçlarıyla somutlaştırdığı test edilebilir ürün numuneleri.",
+                        img: "gorseller/ciktilar/prototip_numuneler_beyaz_fon.jpg"
+                    },
+                    {
+                        title: "20 Desen Koleksiyonu",
+                        desc: "Kalenin motiflerinden türetilen lazer kesim modüler Selçuklu ahşap kafes paneller ve 16 ürün grubu.",
+                        img: "gorseller/ciktilar/ahsap_panel_beyaz_fon.jpg"
+                    },
+                    {
+                        title: "3D Kalıntı Maketleri",
+                        desc: "Beyaz stüdyo fonunda izole edilmiş 3B yazıcı baskısı Aydos sur ve kule mimari ölçekli replikaları.",
+                        img: "gorseller/ciktilar/maket_beyaz_fon.jpg"
+                    },
+                    {
+                        title: "Replika Buluntu Kiti",
+                        desc: "Çocuk arkeoloji atölyesi için 3D yazıcıyla basılan kırık seramik ve birleştirilebilir kale taşı parçaları.",
+                        img: "gorseller/07_Aydos_Sanat_ve_Tasarim_Festivali/arkeoloji_ve_yaratici_cocuk_atolyesi_2.jpg"
+                    }
+                ]
+            },
+            {
+                id: "03",
+                nameL1: "Montaj & Ses",
+                nameL2: "Stüdyosu",
+                loc: "Recep Tayyip Erdoğan Kültür Kompleksi",
+                capacity: "4–6 Kişi • 30 m²",
+                img1: {
+                    src: "gorseller/03_Montaj_ve_Ses_Studyosu/montaj_video_kurgu_1.jpg",
+                    caption: "Video Kurgu Süiti: Çift Ekran DaVinci Resolve ve Renk Düzenleme Masası"
+                },
+                img2: {
+                    src: "gorseller/03_Montaj_ve_Ses_Studyosu/ses_kayit_dublaj_2.jpg",
+                    caption: "Dublaj & Kayıt Kabini: Dijital Mikser, Avid Pro Tools ve Vokal Odası"
+                },
+                outputs: [
+                    {
+                        title: "8 Tema Dublaj & Miks",
+                        desc: "Prensesin Aşkı ve Zorlu Bekleyiş dahil 8 tematik anlatının profesyonel seslendirme ve ses masteringi.",
+                        img: "gorseller/03_Montaj_ve_Ses_Studyosu/ses_kayit_dublaj_2.jpg"
+                    },
+                    {
+                        title: "7 Oyun SFX & Müzik",
+                        desc: "Oyun içi kılıç, sur, doğa ses efektleri ve atmosferik fon müziklerinin miksajı.",
+                        img: "gorseller/ciktilar/oyun_ekrani.jpg"
+                    },
+                    {
+                        title: "18 Söyleşi Video Kaydı",
+                        desc: "Aydos Sanat Günleri kapsamında 12 usta sanatçıyla gerçekleştirilen oturumların temizlenmiş ses ve video arşivi.",
+                        img: "gorseller/08_Aydos_Sanat_Gunleri_Soylesi_Salonu/sanat_gunleri_ogrenci_soylesisi_1.jpg"
+                    },
+                    {
+                        title: "160 Genç Showreel Kurgusu",
+                        desc: "DaVinci Resolve ile montajlanan genç tasarımcı showreel'ları ve proje tanıtım belgeselleri.",
+                        img: "gorseller/03_Montaj_ve_Ses_Studyosu/montaj_video_kurgu_1.jpg"
+                    }
+                ]
+            },
+            {
+                id: "04",
+                nameL1: "Seminer &",
+                nameL2: "Kritik Salonu",
+                loc: "Recep Tayyip Erdoğan Kültür Kompleksi",
+                capacity: "30–40 Kişi • 45 m²",
+                img1: {
+                    src: "gorseller/04_Seminer_ve_Sanat_Kritik_Salonu/seminer_ve_lisanslama_egitimi_1.jpg",
+                    caption: "Teorik Eğitim Salonu: Fikrî Mülkiyet, Lisanslama ve Tescil Dersi"
+                },
+                img2: {
+                    src: "gorseller/04_Seminer_ve_Sanat_Kritik_Salonu/sanatci_ve_urun_kritigi_2.jpg",
+                    caption: "Sanatçı ve Tasarımcılarla Birebir Portfolyo ve Eser Kritiği"
+                },
+                outputs: [
+                    {
+                        title: "60 Lisanslı Ürün",
+                        desc: "Telif hakkı, marka veya tasarım tescili alınarak ticari kullanıma ve satışa hazır hâle getirilmiş lisans portföyü.",
+                        img: "gorseller/ciktilar/lisansli_urun_seti_beyaz_fon.jpg"
+                    },
+                    {
+                        title: "160 Portfolyo Dosyası",
+                        desc: "Gençlerin yaratıcı sektör istihdamında ve freelance başvurularda sunacağı profesyonel dijital portfolyolar.",
+                        img: "gorseller/ciktilar/dijital_katalog.jpg"
+                    },
+                    {
+                        title: "160 Eser Sunum Dosyası",
+                        desc: "Eserlerin kavramsal çıkış noktasını, görsel dilini ve hikâyesini anlatan profesyonel pitch deck dosyaları.",
+                        img: "gorseller/04_Seminer_ve_Sanat_Kritik_Salonu/sanatci_ve_urun_kritigi_2.jpg"
+                    },
+                    {
+                        title: "3 Aşamalı Kritik Raporu",
+                        desc: "Sanatçı ve tasarımcılarla yürütülen fikir, prototip ve final aşaması mentörlük değerlendirme dosyaları.",
+                        img: "gorseller/04_Seminer_ve_Sanat_Kritik_Salonu/seminer_ve_lisanslama_egitimi_1.jpg"
+                    }
+                ]
+            },
+            {
+                id: "05",
+                nameL1: "Aydos Kalesi",
+                nameL2: "Sergi Salonu",
+                loc: "Aydos Kalesi Giriş Alanı",
+                capacity: "100+ Ziyaretçi • Black Box",
+                img1: {
+                    src: "gorseller/05_Aydos_Kalesi_Kapali_Sergi_Salonu/kalici_dijital_sergi_mapping_1.jpg",
+                    caption: "Dijital Sergi: 'Zorlu Bekleyiş' Projeksiyon Mapping ve 3D Hologram Vitrini"
+                },
+                img2: {
+                    src: "gorseller/05_Aydos_Kalesi_Kapali_Sergi_Salonu/etkilesimli_oyun_kiosklari_ve_vr_2.jpg",
+                    caption: "Etkileşimli Kiosk Alanı: Dokunmatik Oyun Kioskları ve VR İstasyonları"
+                },
+                outputs: [
+                    {
+                        title: "1 Kalıcı & 3 Geçici Sergi",
+                        desc: "Aydos Kalesi ve kültür alanlarında gençlerin eserlerinin ziyaretçilerle buluştuğu kapsamlı sergi programı.",
+                        img: "gorseller/05_Aydos_Kalesi_Kapali_Sergi_Salonu/kalici_dijital_sergi_mapping_1.jpg"
+                    },
+                    {
+                        title: "3D Hologram Vitrin",
+                        desc: "Aydos kazılarında çıkarılan antik sikke, amfora ve takıların havada süzülen 3B holografik canlandırması.",
+                        img: "gorseller/05_Aydos_Kalesi_Kapali_Sergi_Salonu/kalici_dijital_sergi_mapping_1.jpg"
+                    },
+                    {
+                        title: "8 Tema Mapping Şovu",
+                        desc: "Karartılmış salonda duvara yansıtılan sinematik kuşatma ve fetih anlatısı.",
+                        img: "gorseller/05_Aydos_Kalesi_Kapali_Sergi_Salonu/kalici_dijital_sergi_mapping_1.jpg"
+                    },
+                    {
+                        title: "2 Kiosk & 5 VR İstasyonu",
+                        desc: "Ziyaretçilerin Aydos oyunlarını oynadığı kiosklar ve sanal kale turu sunan 5 bağımsız VR gözlük deneyimi.",
+                        img: "gorseller/ciktilar/vr_deneyimi.jpg"
+                    }
+                ]
+            },
+            {
+                id: "06",
+                nameL1: "Açık Hava",
+                nameL2: "AR Parkuru",
+                loc: "Aydos Kalesi Tarihî Sit Alanı",
+                capacity: "Sit Alanı Rotası • IP65",
+                img1: {
+                    src: "gorseller/06_Aydos_Kalesi_Acik_Hava_AR_ve_Enstalasyon/artirilmis_gerceklik_ar_parkuru_1.jpg",
+                    caption: "Açık Hava AR Parkuru: Tablet ile Kilise Kalıntısının 3B Rekonstrüksiyonu"
+                },
+                img2: {
+                    src: "gorseller/06_Aydos_Kalesi_Acik_Hava_AR_ve_Enstalasyon/mekana_ozgu_dijital_enstalasyon_2.jpg",
+                    caption: "Mekâna Özgü Enstalasyon: Tarihî Taş Surlarda Akşam Işık ve Ses Sanatı"
+                },
+                outputs: [
+                    {
+                        title: "5 AR Rekonstrüksiyon",
+                        desc: "Kilise, sarnıç, tahıl ambarı ve sur kalıntıları üzerinde çalışan 3B rekonstrüksiyon uygulamaları.",
+                        img: "gorseller/ciktilar/ar_kilise_rekonstruksiyon.jpg"
+                    },
+                    {
+                        title: "4 Açık Hava Enstalasyonu",
+                        desc: "Taş dokuya fiziksel zarar vermeyen sökülebilir ışık, sensör ve mekânsal ses yerleştirmeleri.",
+                        img: "gorseller/06_Aydos_Kalesi_Acik_Hava_AR_ve_Enstalasyon/mekana_ozgu_dijital_enstalasyon_2.jpg"
+                    },
+                    {
+                        title: "Kamusal Sanat Donatıları",
+                        desc: "Superpool mekânsal danışmanlığı ile rota boyunca konumlandırılan açık hava oturma ve sanat donatıları.",
+                        img: "gorseller/ciktilar/kamusal_donatilar.jpg"
+                    },
+                    {
+                        title: "Sesli Keşif Rotası",
+                        desc: "Kalenin ziyaretçi yürüyüş parkuru boyunca konum tetiklemeli çalışan mobil rehber.",
+                        img: "gorseller/06_Aydos_Kalesi_Acik_Hava_AR_ve_Enstalasyon/artirilmis_gerceklik_ar_parkuru_1.jpg"
+                    }
+                ]
+            },
+            {
+                id: "07",
+                nameL1: "Sanat & Tasarım",
+                nameL2: "Festival Alanı",
+                loc: "Sultanbeyli Kültür Meydanı",
+                capacity: "2.000 Katılımcı • 2 Gün",
+                img1: {
+                    src: "gorseller/07_Aydos_Sanat_ve_Tasarim_Festivali/festival_ve_tasarim_yarismasi_ana_alan_1.jpg",
+                    caption: "Festival Ana Meydanı: Dev LED Sahne, Tasarım Stantları ve Kostümlü Figürler"
+                },
+                img2: {
+                    src: "gorseller/07_Aydos_Sanat_ve_Tasarim_Festivali/arkeoloji_ve_yaratici_cocuk_atolyesi_2.jpg",
+                    caption: "Çocuk Arkeoloji Atölyesi: Kum Havuzunda Simülasyon Kazı ve 3D Parça Tamamlama"
+                },
+                outputs: [
+                    {
+                        title: "Festival Modeli (2.000 Kişi)",
+                        desc: "2 günlük kapsamlı sergi, gösterim ve ödül töreni bileşenleriyle sürdürülebilir festival organizasyonu.",
+                        img: "gorseller/07_Aydos_Sanat_ve_Tasarim_Festivali/festival_ve_tasarim_yarismasi_ana_alan_1.jpg"
+                    },
+                    {
+                        title: "Tasarım Yarışması Ödülleri",
+                        desc: "Festival kapsamında düzenlenen Aydos Tasarım Yarışması'nda ödüllendirilen ve sergilenen genç eserleri.",
+                        img: "gorseller/07_Aydos_Sanat_ve_Tasarim_Festivali/festival_ve_tasarim_yarismasi_ana_alan_1.jpg"
+                    },
+                    {
+                        title: "Arkeoloji Kazı & Puzzle Kiti",
+                        desc: "Festivalde çocukların kum havuzunda kazarak birleştirdiği 3D replika buluntu parçaları.",
+                        img: "gorseller/07_Aydos_Sanat_ve_Tasarim_Festivali/arkeoloji_ve_yaratici_cocuk_atolyesi_2.jpg"
+                    },
+                    {
+                        title: "Kostümlü Oyun Figürleri",
+                        desc: "Oyun karakterlerinin tasarımlarından dikilen fiziksel etkinlik kostümleri ve canlı performans.",
+                        img: "gorseller/07_Aydos_Sanat_ve_Tasarim_Festivali/festival_ve_tasarim_yarismasi_ana_alan_1.jpg"
+                    }
+                ]
+            },
+            {
+                id: "08",
+                nameL1: "Sanat Günleri",
+                nameL2: "Söyleşi Salonu",
+                loc: "Sultanbeyli Kültür Merkezi Amfisi",
+                capacity: "100–200 Kişi • 6 Günlük",
+                img1: {
+                    src: "gorseller/08_Aydos_Sanat_Gunleri_Soylesi_Salonu/sanat_gunleri_ogrenci_soylesisi_1.jpg",
+                    caption: "Öğrenci Masterclass: Usta Sanatçı ve Küratör ile Genç Tasarımcılar Buluşması"
+                },
+                img2: {
+                    src: "gorseller/08_Aydos_Sanat_Gunleri_Soylesi_Salonu/halka_acik_guncel_sanat_paneli_2.jpg",
+                    caption: "Halka Açık Konferans: Kültür Merkezinde 'Sanat, Teknoloji ve Kültürel Miras' Paneli"
+                },
+                outputs: [
+                    {
+                        title: "Aydos Sanat Platformu Ağı",
+                        desc: "İlçedeki yerel sanatçıları, tasarımcıları ve gençleri buluşturan kalıcı organizasyon ağı ve veri tabanı.",
+                        img: "gorseller/ciktilar/sanat_toplulugu_agi.jpg"
+                    },
+                    {
+                        title: "18 Sanat Söyleşisi Kaydı",
+                        desc: "12 usta sanatçı ve küratörle gerçekleştirilen masterclass ve halka açık oturumların video arşivi.",
+                        img: "gorseller/08_Aydos_Sanat_Gunleri_Soylesi_Salonu/sanat_gunleri_ogrenci_soylesisi_1.jpg"
+                    },
+                    {
+                        title: "Dijital Proje Kataloğu",
+                        desc: "Projede üretilen seçili 300 tasarım ve 160 prototipin yer aldığı kapsamlı dijital e-katalog.",
+                        img: "gorseller/ciktilar/dijital_katalog.jpg"
+                    },
+                    {
+                        title: "Yıllık Sanat Programı Kurgusu",
+                        desc: "Kalenin ve merkezin proje sonrasında da aktif kültür odağı olarak işlemesini sağlayan yıllık program.",
+                        img: "gorseller/04_Seminer_ve_Sanat_Kritik_Salonu/seminer_ve_lisanslama_egitimi_1.jpg"
+                    }
+                ]
+            }
+        ];
+
+        let selectedSpaceIdx = 0;
+        let selectedImgKey = "img1";
+
+        function renderSpaceTiles() {
+            const container = document.getElementById("space-tiles-container");
+            container.innerHTML = darkKioskSpaces.map((s, idx) => `
+                <div onclick="selectKioskSpace(${idx})" id="space-tile-${idx}" 
+                    class="space-tile cursor-pointer ${idx === 0 ? 'active' : ''}">
+                    <img src="${s.img1.src}" alt="${s.nameL1} ${s.nameL2}">
+                    <div class="tile-scrim"></div>
+                    <div class="relative z-10 h-full px-4 py-2 flex items-center gap-3.5">
+                        <div class="text-3xl font-mono font-black ${idx === 0 ? 'text-cyan-400' : 'text-slate-400'} tracking-tighter shrink-0 select-none">
+                            ${s.id}
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h4 class="text-base font-black text-white leading-tight drop-shadow-md tracking-tight">
+                                <span class="block truncate">${s.nameL1}</span>
+                                <span class="block truncate">${s.nameL2}</span>
+                            </h4>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function selectKioskSpace(idx) {
+            selectedSpaceIdx = idx;
+            selectedImgKey = "img1";
+
+            darkKioskSpaces.forEach((s, i) => {
+                const tile = document.getElementById(`space-tile-${i}`);
+                if (i === idx) {
+                    tile.classList.add("active");
+                } else {
+                    tile.classList.remove("active");
+                }
+            });
+
+            updateSpaceView();
+        }
+
+        function updateSpaceView() {
+            const s = darkKioskSpaces[selectedSpaceIdx];
+
+            document.getElementById("cur-space-loc").innerText = s.loc;
+            document.getElementById("cur-space-title").innerText = `${s.nameL1} ${s.nameL2}`;
+            document.getElementById("cur-space-capacity").innerText = s.capacity;
+
+            const heroData = s[selectedImgKey];
+            const heroImg = document.getElementById("cur-hero-img");
+            heroImg.src = heroData.src;
+            heroImg.alt = heroData.caption;
+            document.getElementById("cur-hero-caption").innerText = heroData.caption;
+            document.getElementById("cur-hero-badge").innerText = (selectedImgKey === "img1") ? "Açı 1: Donanım & Yerleşim" : "Açı 2: Uygulama & Deneyim";
+
+            document.getElementById("cur-gallery-container").innerHTML = `
+                <div onclick="setHeroImage('img1')" class="gallery-card h-24 ${selectedImgKey === 'img1' ? 'active' : 'opacity-70 hover:opacity-100'}">
+                    <img src="${s.img1.src}" alt="Açı 1" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-dark-950/90 via-dark-950/30 to-transparent p-2.5 flex items-end">
+                        <span class="text-xs font-bold text-white leading-tight truncate">Açı 1: Donanım & Yerleşim</span>
+                    </div>
+                </div>
+                <div onclick="setHeroImage('img2')" class="gallery-card h-24 ${selectedImgKey === 'img2' ? 'active' : 'opacity-70 hover:opacity-100'}">
+                    <img src="${s.img2.src}" alt="Açı 2" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-dark-950/90 via-dark-950/30 to-transparent p-2.5 flex items-end">
+                        <span class="text-xs font-bold text-white leading-tight truncate">Açı 2: Uygulama & Deneyim</span>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById("cur-outputs-grid").innerHTML = s.outputs.map((out, i) => `
+                <div class="output-grid-card" onclick="openOutputModalByIndex(${selectedSpaceIdx}, ${i})">
+                    <img src="${out.img}" alt="${out.title}">
+                    <h4 class="text-xs font-bold text-white mt-1.5 leading-tight truncate">${out.title}</h4>
+                    <span class="text-[10px] text-slate-400 mt-0.5 truncate">${s.nameL2}</span>
+                </div>
+            `).join('');
+        }
+
+        function setHeroImage(key) {
+            selectedImgKey = key;
+            updateSpaceView();
+        }
+
+                        // MEKÂN ANA GÖRSELİ TAM EKRAN AÇMA
+        function openHeroSplit() {
+            const s = darkKioskSpaces[selectedSpaceIdx];
+            const data = s[selectedImgKey];
+            const modal = document.getElementById("space-fullscreen-modal");
+            document.getElementById("space-modal-img").src = data.src;
+            document.getElementById("space-modal-title").innerText = `${s.nameL1} ${s.nameL2}`;
+            document.getElementById("space-modal-badge").innerText = (selectedImgKey === "img1") ? "Açı 1: Donanım & Yerleşim" : "Açı 2: Uygulama & Deneyim";
+            document.getElementById("space-modal-caption").innerText = data.caption;
+            modal.style.display = "flex";
+        }
+
+        function closeSpaceModal(e) {
+            if (e && e.target && (e.target.id === "space-modal-img" || e.target.closest("#space-modal-img") || e.target.closest(".max-w-4xl"))) {
+                return;
+            }
+            document.getElementById("space-fullscreen-modal").style.display = "none";
+        }
+
+        // ÇIKTI KARTLARI MODALI (%75 GÖRSEL - %25 METİN) - İNDEKS TABANLI
+        function openOutputModalByIndex(spaceIdx, outputIdx) {
+            const out = darkKioskSpaces[spaceIdx].outputs[outputIdx];
+            const modal = document.getElementById("output-split-modal");
+            document.getElementById("modal-split-img").src = out.img;
+            document.getElementById("modal-split-title").innerText = out.title;
+            document.getElementById("modal-split-desc").innerText = out.desc;
+            modal.style.display = "flex";
+        }
+
+        function openOutputSplitModal(imgSrc, title, desc) {
+            const modal = document.getElementById("output-split-modal");
+            document.getElementById("modal-split-img").src = imgSrc;
+            document.getElementById("modal-split-title").innerText = title;
+            document.getElementById("modal-split-desc").innerText = desc;
+            modal.style.display = "flex";
+        }
+
+        function closeOutputSplitModal(e) {
+            if (e && e.target && (e.target.closest(".kiosk-panel") && e.target.id !== "output-split-modal")) {
+                if (!e.target.closest("button")) return;
+            }
+            document.getElementById("output-split-modal").style.display = "none";
+        }
+
+        // Screen Switcher
+        const kioskScreens = ["mekanlar", "kroki", "sanat", "tasarimlar", "topluluk", "koleksiyon"];
+        function switchKioskScreen(screenName) {
+            kioskScreens.forEach(s => {
+                const el = document.getElementById(`screen-${s}`);
+                const navBtn = document.getElementById(`kiosk-nav-${s}`);
+                if (s === screenName) {
+                    el.classList.remove("hidden");
+                    navBtn.className = "px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition active:scale-95 bg-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/25";
+                } else {
+                    el.classList.add("hidden");
+                    navBtn.className = "px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition active:scale-95 bg-white/5 text-slate-300 hover:bg-white/10";
+                }
+            });
+        }
+
+        // Clock
+        function updateClock() {
+            const now = new Date();
+            document.getElementById("live-time").innerText = now.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            document.getElementById("live-date").innerText = now.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        renderSpaceTiles();
+        selectKioskSpace(0);
+    </script>
+</body>
+</html>
