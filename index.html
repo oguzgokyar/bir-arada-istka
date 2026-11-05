@@ -207,6 +207,208 @@
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.12); border-radius: 4px; }
     </style>
+    <!-- RESPONSIVE MOBILE & TABLET OVERRIDES (< 1024px) -->
+    <!-- DESKTOP (>= 1024px) REMAINS 100% UNTOUCHED, PIXEL-PERFECT MASTER KIOSK -->
+    <style id="responsive-mobile-overrides">
+        @media (max-width: 1023px) {
+            html, body {
+                height: auto !important;
+                min-height: 100vh !important;
+                overflow-x: hidden !important;
+                overflow-y: auto !important;
+            }
+
+            /* Header adjustments for mobile */
+            header {
+                height: auto !important;
+                min-height: 64px !important;
+                padding: 10px 14px !important;
+                position: sticky !important;
+                top: 0 !important;
+                z-index: 40 !important;
+                backdrop-filter: blur(20px) !important;
+                flex-wrap: wrap !important;
+                gap: 8px !important;
+            }
+            header .stat-pills, header .header-stats {
+                display: none !important;
+            }
+            header .clock-box {
+                font-size: 11px !important;
+            }
+            header .logo-container {
+                width: 46px !important;
+                height: 46px !important;
+            }
+
+            /* Main container */
+            main {
+                height: auto !important;
+                overflow: visible !important;
+                padding: 12px !important;
+                padding-bottom: 76px !important; /* reserve space for fixed bottom footer */
+            }
+
+            /* Screen 1: Üretim Altyapısı (Mekânlar) */
+            #screen-mekanlar {
+                height: auto !important;
+                flex-direction: column !important;
+                overflow: visible !important;
+                gap: 14px !important;
+            }
+            #screen-mekanlar > div:first-child {
+                width: 100% !important;
+                overflow-x: auto !important;
+                overflow-y: visible !important;
+                padding-bottom: 4px !important;
+                scrollbar-width: none !important;
+                -webkit-overflow-scrolling: touch;
+            }
+            #screen-mekanlar > div:first-child::-webkit-scrollbar {
+                display: none;
+            }
+            #space-tiles-container {
+                display: flex !important;
+                flex-direction: row !important;
+                gap: 8px !important;
+                width: max-content !important;
+            }
+            .space-tile {
+                width: 210px !important;
+                min-width: 210px !important;
+                height: 70px !important;
+                flex-shrink: 0 !important;
+            }
+
+            /* Middle hero image */
+            #screen-mekanlar > div:nth-child(2) {
+                width: 100% !important;
+                height: auto !important;
+                overflow: visible !important;
+                padding: 14px !important;
+            }
+            #screen-mekanlar > div:nth-child(2) .relative.overflow-hidden.rounded-xl {
+                height: 240px !important;
+                min-height: 240px !important;
+            }
+
+            /* Right outputs panel */
+            #screen-mekanlar > div:nth-child(3) {
+                width: 100% !important;
+                height: auto !important;
+                overflow: visible !important;
+                padding: 14px !important;
+            }
+            #cur-outputs-grid {
+                overflow: visible !important;
+                display: grid !important;
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+                gap: 10px !important;
+            }
+
+            /* Screen 2: Kroki */
+            #screen-kroki {
+                height: auto !important;
+                flex-direction: column !important;
+                overflow: visible !important;
+                gap: 14px !important;
+            }
+            #screen-kroki > div:first-child {
+                width: 100% !important;
+                height: auto !important;
+            }
+            #screen-kroki > div:nth-child(2) {
+                width: 100% !important;
+                height: 280px !important;
+                min-height: 280px !important;
+            }
+
+            /* Grid Screens: Dijital Eserler, Genç Tasarımlar, Sanat Topluluğu, Koleksiyon */
+            #screen-sanat .grid,
+            #screen-tasarimlar .grid,
+            #screen-topluluk .grid,
+            #screen-koleksiyon .grid {
+                display: grid !important;
+                grid-template-columns: 1fr !important;
+                height: auto !important;
+                overflow: visible !important;
+                gap: 12px !important;
+            }
+            .showcase-card {
+                min-height: 280px !important;
+                height: auto !important;
+            }
+
+            /* Fixed bottom touch tab bar */
+            footer {
+                position: fixed !important;
+                bottom: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                height: 58px !important;
+                padding: 0 10px !important;
+                background: rgba(3, 5, 8, 0.96) !important;
+                backdrop-filter: blur(20px) !important;
+                border-top: 1px solid rgba(255, 255, 255, 0.12) !important;
+                z-index: 50 !important;
+                justify-content: flex-start !important;
+            }
+            footer nav {
+                overflow-x: auto !important;
+                white-space: nowrap !important;
+                width: 100% !important;
+                padding-bottom: 2px !important;
+                scrollbar-width: none !important;
+                -webkit-overflow-scrolling: touch;
+                gap: 6px !important;
+            }
+            footer nav::-webkit-scrollbar {
+                display: none;
+            }
+            footer nav button {
+                padding: 6px 13px !important;
+                font-size: 11px !important;
+                flex-shrink: 0 !important;
+            }
+            footer > div:last-child {
+                display: none !important;
+            }
+
+            /* Modals responsive */
+            #output-split-modal {
+                padding: 12px !important;
+            }
+            #output-split-modal > div {
+                flex-direction: column !important;
+                height: auto !important;
+                max-height: 90vh !important;
+                overflow-y: auto !important;
+                padding: 14px !important;
+                gap: 12px !important;
+            }
+            #output-split-modal > div > div:first-of-type {
+                width: 100% !important;
+                height: 220px !important;
+                min-height: 220px !important;
+            }
+            #output-split-modal > div > div:last-of-type {
+                width: 100% !important;
+                border-left: none !important;
+                border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+                padding-left: 0 !important;
+                padding-top: 10px !important;
+            }
+        }
+
+        @media (min-width: 640px) and (max-width: 1023px) {
+            #screen-sanat .grid,
+            #screen-tasarimlar .grid,
+            #screen-topluluk .grid,
+            #screen-koleksiyon .grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            }
+        }
+    </style>
 </head>
 <body class="bg-thematic flex flex-col h-screen w-screen overflow-hidden text-slate-100">
 
