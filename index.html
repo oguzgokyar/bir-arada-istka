@@ -213,8 +213,8 @@
     <!-- TOP BAR -->
     <header class="h-20 bg-dark-950/90 border-b border-white/10 px-8 flex items-center justify-between shrink-0 z-30">
         <div class="flex items-center gap-4">
-            <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-cyan-500 to-amber-500 flex items-center justify-center text-slate-950 font-black text-lg shadow-lg shadow-cyan-500/20">
-                BA
+            <div class="w-12 h-12 rounded-xl overflow-hidden border border-cyan-500/40 shadow-lg shadow-cyan-500/25 shrink-0 bg-dark-900 flex items-center justify-center p-0.5 glow-cyan">
+                <img src="gorseller/proje_logo.jpg" alt="Bir Arada Proje Logosu" class="w-full h-full object-contain rounded-lg">
             </div>
             <div>
                 <div class="flex items-center gap-2.5">
@@ -778,9 +778,83 @@
 
     <!-- JAVASCRIPT -->
     <script>
-                        const darkKioskSpaces = [
+                                const darkKioskSpaces = [
             {
                 id: "01",
+                nameL1: "Aydos Kalesi",
+                nameL2: "Sergi Salonu",
+                loc: "Aydos Kalesi Giriş Alanı",
+                capacity: "100+ Ziyaretçi • Black Box",
+                img1: {
+                    src: "gorseller/05_Aydos_Kalesi_Kapali_Sergi_Salonu/kalici_dijital_sergi_mapping_1.jpg",
+                    caption: "Dijital Sergi: 'Zorlu Bekleyiş' Projeksiyon Mapping ve 3D Hologram Vitrini"
+                },
+                img2: {
+                    src: "gorseller/05_Aydos_Kalesi_Kapali_Sergi_Salonu/etkilesimli_oyun_kiosklari_ve_vr_2.jpg",
+                    caption: "Etkileşimli Kiosk Alanı: Dokunmatik Oyun Kioskları ve VR İstasyonları"
+                },
+                outputs: [
+                    {
+                        title: "3D Hologram Vitrin",
+                        desc: "Aydos kazılarında çıkarılan antik sikke, amfora ve takıların havada süzülen 3B holografik canlandırması.",
+                        img: "gorseller/ciktilar/hologram_vitrini_yakin.jpg"
+                    },
+                    {
+                        title: "8 Tema Mapping Şovu",
+                        desc: "Karartılmış salonda duvara yansıtılan sinematik kuşatma ve fetih anlatısı.",
+                        img: "gorseller/05_Aydos_Kalesi_Kapali_Sergi_Salonu/kalici_dijital_sergi_mapping_1.jpg"
+                    },
+                    {
+                        title: "2 Dokunmatik Oyun Kiosku",
+                        desc: "Ziyaretçilerin Aydos dijital oyunlarını dokunmatik olarak oynadığı kiosk konsolları.",
+                        img: "gorseller/ciktilar/oyun_kiosklari_yakin.jpg"
+                    },
+                    {
+                        title: "5 VR İstasyonu",
+                        desc: "Ziyaretçilerin sanal ortamda kaleyi 360 derece keşfettiği VR gözlük deneyimi.",
+                        img: "gorseller/ciktilar/vr_deneyimi.jpg"
+                    }
+                ]
+            },
+            {
+                id: "02",
+                nameL1: "Açık Hava",
+                nameL2: "AR Parkuru",
+                loc: "Aydos Kalesi Tarihî Sit Alanı",
+                capacity: "Sit Alanı Rotası • IP65",
+                img1: {
+                    src: "gorseller/06_Aydos_Kalesi_Acik_Hava_AR_ve_Enstalasyon/artirilmis_gerceklik_ar_parkuru_1.jpg",
+                    caption: "Açık Hava AR Parkuru: Tablet ile Kilise Kalıntısının 3B Rekonstrüksiyonu"
+                },
+                img2: {
+                    src: "gorseller/06_Aydos_Kalesi_Acik_Hava_AR_ve_Enstalasyon/mekana_ozgu_dijital_enstalasyon_2.jpg",
+                    caption: "Mekâna Özgü Enstalasyon: Tarihî Taş Surlarda Akşam Işık ve Ses Sanatı"
+                },
+                outputs: [
+                    {
+                        title: "5 AR Rekonstrüksiyon",
+                        desc: "Kilise, sarnıç, tahıl ambarı ve sur kalıntıları üzerinde çalışan 3B rekonstrüksiyon uygulamaları.",
+                        img: "gorseller/ciktilar/ar_kilise_rekonstruksiyon.jpg"
+                    },
+                    {
+                        title: "4 Açık Hava Enstalasyonu",
+                        desc: "Taş dokuya fiziksel zarar vermeyen sökülebilir ışık, sensör ve mekânsal ses yerleştirmeleri.",
+                        img: "gorseller/06_Aydos_Kalesi_Acik_Hava_AR_ve_Enstalasyon/mekana_ozgu_dijital_enstalasyon_2.jpg"
+                    },
+                    {
+                        title: "Kamusal Sanat Donatıları",
+                        desc: "Superpool mekânsal danışmanlığı ile rota boyunca konumlandırılan açık hava oturma ve sanat donatıları.",
+                        img: "gorseller/ciktilar/kamusal_donatilar.jpg"
+                    },
+                    {
+                        title: "AR Yönlendirme Levhaları",
+                        desc: "Ziyaretçilerin kameralarını doğrultarak AR modelini tetiklediği özel yönlendirme plakaları.",
+                        img: "gorseller/ciktilar/ar_yonlendirme_levhasi.jpg"
+                    }
+                ]
+            },
+            {
+                id: "03",
                 nameL1: "Yapay Zekâ",
                 nameL2: "Sanat Atölyesi",
                 loc: "Recep Tayyip Erdoğan Kültür Kompleksi",
@@ -827,7 +901,7 @@
                 ]
             },
             {
-                id: "02",
+                id: "04",
                 nameL1: "Prototipleme",
                 nameL2: "Atölyesi",
                 loc: "Recep Tayyip Erdoğan Kültür Kompleksi",
@@ -869,7 +943,7 @@
                 ]
             },
             {
-                id: "03",
+                id: "05",
                 nameL1: "Montaj & Ses",
                 nameL2: "Stüdyosu",
                 loc: "Recep Tayyip Erdoğan Kültür Kompleksi",
@@ -906,7 +980,7 @@
                 ]
             },
             {
-                id: "04",
+                id: "06",
                 nameL1: "Seminer &",
                 nameL2: "Kritik Salonu",
                 loc: "Recep Tayyip Erdoğan Kültür Kompleksi",
@@ -939,80 +1013,6 @@
                         title: "3 Aşamalı Sanatsal Kritik",
                         desc: "Sanatçı ve tasarımcılarla yürütülen fikir, prototip ve final aşaması mentörlük değerlendirme dosyaları.",
                         img: "gorseller/ciktilar/tasarim_eskizleri.jpg"
-                    }
-                ]
-            },
-            {
-                id: "05",
-                nameL1: "Aydos Kalesi",
-                nameL2: "Sergi Salonu",
-                loc: "Aydos Kalesi Giriş Alanı",
-                capacity: "100+ Ziyaretçi • Black Box",
-                img1: {
-                    src: "gorseller/05_Aydos_Kalesi_Kapali_Sergi_Salonu/kalici_dijital_sergi_mapping_1.jpg",
-                    caption: "Dijital Sergi: 'Zorlu Bekleyiş' Projeksiyon Mapping ve 3D Hologram Vitrini"
-                },
-                img2: {
-                    src: "gorseller/05_Aydos_Kalesi_Kapali_Sergi_Salonu/etkilesimli_oyun_kiosklari_ve_vr_2.jpg",
-                    caption: "Etkileşimli Kiosk Alanı: Dokunmatik Oyun Kioskları ve VR İstasyonları"
-                },
-                outputs: [
-                    {
-                        title: "3D Hologram Vitrin",
-                        desc: "Aydos kazılarında çıkarılan antik sikke, amfora ve takıların havada süzülen 3B holografik canlandırması.",
-                        img: "gorseller/ciktilar/hologram_vitrini_yakin.jpg"
-                    },
-                    {
-                        title: "8 Tema Mapping Şovu",
-                        desc: "Karartılmış salonda duvara yansıtılan sinematik kuşatma ve fetih anlatısı.",
-                        img: "gorseller/05_Aydos_Kalesi_Kapali_Sergi_Salonu/kalici_dijital_sergi_mapping_1.jpg"
-                    },
-                    {
-                        title: "2 Dokunmatik Oyun Kiosku",
-                        desc: "Ziyaretçilerin Aydos dijital oyunlarını dokunmatik olarak oynadığı kiosk konsolları.",
-                        img: "gorseller/ciktilar/oyun_kiosklari_yakin.jpg"
-                    },
-                    {
-                        title: "5 VR İstasyonu",
-                        desc: "Ziyaretçilerin sanal ortamda kaleyi 360 derece keşfettiği VR gözlük deneyimi.",
-                        img: "gorseller/ciktilar/vr_deneyimi.jpg"
-                    }
-                ]
-            },
-            {
-                id: "06",
-                nameL1: "Açık Hava",
-                nameL2: "AR Parkuru",
-                loc: "Aydos Kalesi Tarihî Sit Alanı",
-                capacity: "Sit Alanı Rotası • IP65",
-                img1: {
-                    src: "gorseller/06_Aydos_Kalesi_Acik_Hava_AR_ve_Enstalasyon/artirilmis_gerceklik_ar_parkuru_1.jpg",
-                    caption: "Açık Hava AR Parkuru: Tablet ile Kilise Kalıntısının 3B Rekonstrüksiyonu"
-                },
-                img2: {
-                    src: "gorseller/06_Aydos_Kalesi_Acik_Hava_AR_ve_Enstalasyon/mekana_ozgu_dijital_enstalasyon_2.jpg",
-                    caption: "Mekâna Özgü Enstalasyon: Tarihî Taş Surlarda Akşam Işık ve Ses Sanatı"
-                },
-                outputs: [
-                    {
-                        title: "5 AR Rekonstrüksiyon",
-                        desc: "Kilise, sarnıç, tahıl ambarı ve sur kalıntıları üzerinde çalışan 3B rekonstrüksiyon uygulamaları.",
-                        img: "gorseller/ciktilar/ar_kilise_rekonstruksiyon.jpg"
-                    },
-                    {
-                        title: "4 Açık Hava Enstalasyonu",
-                        desc: "Taş dokuya fiziksel zarar vermeyen sökülebilir ışık, sensör ve mekânsal ses yerleştirmeleri.",
-                        img: "gorseller/06_Aydos_Kalesi_Acik_Hava_AR_ve_Enstalasyon/mekana_ozgu_dijital_enstalasyon_2.jpg"
-                    },
-                    {
-                        title: "Kamusal Sanat Donatıları",
-                        desc: "Superpool mekânsal danışmanlığı ile rota boyunca konumlandırılan açık hava oturma ve sanat donatıları.",
-                        img: "gorseller/ciktilar/kamusal_donatilar.jpg"
-                    },
-                    {
-                        title: "AR Yönlendirme Levhaları",
-                        desc: "Ziyaretçilerin kameralarını doğrultarak AR modelini tetiklediği özel yönlendirme plakaları.",
-                        img: "gorseller/ciktilar/ar_yonlendirme_levhasi.jpg"
                     }
                 ]
             },
