@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>İSTKA Yeni Medya Eğitim ve Üretim Merkezi - Ölçekli Mimari Kroki (1:100)</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --surface: rgba(30, 41, 59, 0.95);
+      --border: rgba(255, 255, 255, 0.12);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #0284c7;
+      --accent-hover: #0369a1;
+      --card-bg: #1e293b;
+      --badge-lab: #0284c7;
+      --badge-proto: #d97706;
+      --badge-sound: #db2777;
+      --badge-mix: #9333ea;
+      --badge-seminar: #16a34a;
+      --badge-office: #7c3aed;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Bar */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 20;
+      backdrop-filter: blur(12px);
+    }
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .logo-badge {
+      background: linear-gradient(135deg, #0284c7, #06b6d4);
+      color: #fff;
+      font-weight: 800;
+      font-size: 13px;
+      padding: 6px 12px;
+      border-radius: 8px;
+      letter-spacing: 0.5px;
+    }
+    .header-titles h1 {
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .header-titles p {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 7px 13px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.16);
+      border-color: rgba(255, 255, 255, 0.3);
+      transform: translateY(-1px);
+    }
+    .btn-primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+    .btn-primary:hover {
+      background: var(--accent-hover);
+    }
+    .btn-group {
+      display: flex;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 8px;
+      padding: 2px;
+      border: 1px solid var(--border);
+    }
+    .btn-tab {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 6px 12px;
+      font-size: 11.5px;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-tab.active {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    /* Main Container */
+    main {
+      flex: 1;
+      display: flex;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Viewer Container */
+    #viewer-wrapper {
+      flex: 1;
+      position: relative;
+      background: #090d16;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      cursor: grab;
+    }
+    #viewer-wrapper:active {
+      cursor: grabbing;
+    }
+    #plan-viewport {
+      transform-origin: center center;
+      transition: transform 0.08s ease-out;
+      will-change: transform;
+      max-width: 95%;
+      max-height: 95%;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+      border-radius: 4px;
+      background: #fff;
+    }
+    #plan-image {
+      display: block;
+      width: 100%;
+      height: auto;
+      pointer-events: none;
+    }
+
+    /* Floating View Controls */
+    .floating-controls {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      display: flex;
+      gap: 6px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 6px;
+      border-radius: 10px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      z-index: 10;
+      backdrop-filter: blur(10px);
+    }
+    .ctrl-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border);
+      color: #fff;
+      width: 34px;
+      height: 34px;
+      border-radius: 6px;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    .ctrl-btn:hover {
+      background: var(--accent);
+    }
+    .zoom-level {
+      display: flex;
+      align-items: center;
+      padding: 0 10px;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--text-muted);
+      min-width: 55px;
+      justify-content: center;
+    }
+
+    /* Floating Room Nav Bar */
+    .room-nav-bar {
+      position: absolute;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 4px;
+      gap: 4px;
+      z-index: 10;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      max-width: 90vw;
+      overflow-x: auto;
+    }
+    .room-pill {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 6px 12px;
+      font-size: 11.5px;
+      font-weight: 600;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .room-pill:hover, .room-pill.active {
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+    }
+    .room-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    /* Right Side Spec Drawer */
+    #spec-drawer {
+      width: 380px;
+      background: var(--surface);
+      border-left: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      backdrop-filter: blur(14px);
+      z-index: 15;
+      box-shadow: -10px 0 30px rgba(0, 0, 0, 0.4);
+      transition: transform 0.3s ease;
+    }
+    #spec-drawer.collapsed {
+      transform: translateX(380px);
+      position: absolute;
+      right: 0;
+      top: 0;
+      bottom: 0;
+    }
+    .drawer-header {
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+    .drawer-title-area h2 {
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .drawer-title-area span.code-tag {
+      font-size: 11px;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 2px 7px;
+      border-radius: 4px;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .drawer-title-area p {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+    .close-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 18px;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 4px;
+    }
+    .close-btn:hover { color: #fff; background: rgba(255, 255, 255, 0.1); }
+
+    .drawer-content {
+      padding: 20px;
+      overflow-y: auto;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .stat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .stat-box {
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+    .stat-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .stat-value {
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+      margin-top: 3px;
+    }
+
+    .spec-section {
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .spec-section h3 {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .spec-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .spec-list li {
+      font-size: 12px;
+      color: #e2e8f0;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      line-height: 1.45;
+    }
+    .spec-list li::before {
+      content: "•";
+      color: var(--accent);
+      font-weight: bold;
+    }
+
+    /* Print Styles */
+    @media print {
+      body { background: #fff; color: #000; overflow: visible; }
+      header, .floating-controls, .room-nav-bar, #spec-drawer { display: none !important; }
+      #viewer-wrapper { background: #fff; }
+      #plan-viewport { box-shadow: none; max-width: 100%; max-height: 100%; transform: none !important; }
+      #plan-image { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <header>
+    <div class="header-left">
+      <div class="logo-badge">İSTKA</div>
+      <div class="header-titles">
+        <h1>Yeni Medya Eğitim ve Üretim Merkezi <span style="font-size: 12px; font-weight: normal; color: #38bdf8;">(348 m² Brüt Alan)</span></h1>
+        <p>Recep Tayyip Erdoğan Kompleksi • 1:100 Metrik Mimari Tefrişat & Yerleşim Krokisi</p>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <!-- Theme Switcher -->
+      <div class="btn-group">
+        <button class="btn-tab active" onclick="switchTheme('paper')">Mimari Pafta (Açık)</button>
+        <button class="btn-tab" onclick="switchTheme('blueprint')">CAD Blueprint (Mavi)</button>
+      </div>
+
+      <!-- Action Buttons -->
+      <a href="kroki_mimari_plan.png" download="ISTKA_Yeni_Medya_Merkezi_Krokisi.png" class="btn">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+        PNG İndir (300 DPI)
+      </a>
+      <a href="kroki_mimari_plan.svg" download="ISTKA_Yeni_Medya_Merkezi_Krokisi.svg" class="btn">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+        Vektör SVG
+      </a>
+      <button class="btn btn-primary" onclick="window.print()">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+        Yazdır / PDF
+      </button>
+      <button class="btn" id="toggle-drawer-btn" onclick="toggleDrawer()">
+        Detay Paneli
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Body -->
+  <main>
+    <!-- Floating Room Selector -->
+    <div class="room-nav-bar">
+      <button class="room-pill active" onclick="selectRoom('all')">
+        <span class="room-dot" style="background: #fff;"></span> Tüm Merkez
+      </button>
+      <button class="room-pill" onclick="selectRoom('lab')">
+        <span class="room-dot" style="background: var(--badge-lab);"></span> Bilişim Lab (66 m²)
+      </button>
+      <button class="room-pill" onclick="selectRoom('proto')">
+        <span class="room-dot" style="background: var(--badge-proto);"></span> Prototip Atölyesi (66 m²)
+      </button>
+      <button class="room-pill" onclick="selectRoom('booth')">
+        <span class="room-dot" style="background: var(--badge-sound);"></span> Ses Kayıt (15 m²)
+      </button>
+      <button class="room-pill" onclick="selectRoom('mix')">
+        <span class="room-dot" style="background: var(--badge-mix);"></span> Mix & Kurgu (19 m²)
+      </button>
+      <button class="room-pill" onclick="selectRoom('seminar')">
+        <span class="room-dot" style="background: var(--badge-seminar);"></span> Seminer Salonu (50 m²)
+      </button>
+      <button class="room-pill" onclick="selectRoom('office')">
+        <span class="room-dot" style="background: var(--badge-office);"></span> Proje Ofisi (50 m²)
+      </button>
+      <button class="room-pill" onclick="selectRoom('foyer')">
+        <span class="room-dot" style="background: #38bdf8;"></span> Giriş Fuayesi (34 m²)
+      </button>
+      <button class="room-pill" onclick="selectRoom('restrooms')">
+        <span class="room-dot" style="background: #94a3b8;"></span> Islak Hacimler (Bay/Bayan/Engelli)
+      </button>
+    </div>
+
+    <!-- Viewport Container -->
+    <div id="viewer-wrapper">
+      <div id="plan-viewport">
+        <img id="plan-image" src="kroki_mimari_plan.png" alt="Yeni Medya Merkezi Mimari Krokisi">
+      </div>
+
+      <!-- Floating Zoom Controls -->
+      <div class="floating-controls">
+        <button class="ctrl-btn" onclick="zoomIn()" title="Yakınlaştır">+</button>
+        <div class="zoom-level" id="zoom-text">100%</div>
+        <button class="ctrl-btn" onclick="zoomOut()" title="Uzaklaştır">-</button>
+        <button class="ctrl-btn" onclick="resetZoom()" title="Görünümü Sıfırla">⟲</button>
+      </div>
+    </div>
+
+    <!-- Right Spec Drawer -->
+    <aside id="spec-drawer">
+      <div class="drawer-header">
+        <div class="drawer-title-area">
+          <h2 id="d-title">Yeni Medya Merkezi <span class="code-tag" id="d-code">GENEL</span></h2>
+          <p id="d-subtitle">348 m² Tam Entegre Eğitim, Üretim ve Kuluçka Altyapısı</p>
+        </div>
+        <button class="close-btn" onclick="toggleDrawer()">×</button>
+      </div>
+
+      <div class="drawer-content">
+        <div class="stat-grid">
+          <div class="stat-box">
+            <div class="stat-label">Toplam Alan</div>
+            <div class="stat-value" id="d-area">348.00 m²</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Kapasite</div>
+            <div class="stat-value" id="d-cap">120 Genç / 40 Eğt.</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Zemin Kaplaması</div>
+            <div class="stat-value" id="d-floor">Teknik Epoksi & Halı</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Tavan Yüksekliği</div>
+            <div class="stat-value" id="d-height">H = 3.80 m Net</div>
+          </div>
+        </div>
+
+        <div class="spec-section">
+          <h3>Mekânsal Donanım & Tefrişat</h3>
+          <ul class="spec-list" id="d-equip">
+            <li>24 Adet Profesyonel Workstation (Çift Ekranlı, Grafik Tabletli)</li>
+            <li>CO2 Lazer Kesici (130W) ve Hassas CNC İşleme Frezesi</li>
+            <li>3D Yazıcı Çiftliği (FDM & SLA Reçine Teknolojili)</li>
+            <li>Akustik Yüzer Ses Kayıt Kabini ve Video Kurgu/Miksaj Konsolu</li>
+            <li>36 Kişilik Modüler Seminer Masaları ve Akıllı İnteraktif Tahta</li>
+            <li>Proje Koordinasyon Ofisi, Arşiv ve Dinlenme Lounge Alanı</li>
+            <li>Danışma Bankosu, Hızlı Geçiş Turnikeleri ve Yangın Kaçış Koridoru</li>
+          </ul>
+        </div>
+
+        <div class="spec-section">
+          <h3>İlgili Proje Faaliyetleri</h3>
+          <ul class="spec-list" id="d-acts">
+            <li><b>Faaliyet 1.3:</b> Yeni Medya Eğitim ve Üretim Merkezi Kurulumu</li>
+            <li><b>Faaliyet 2.3:</b> Yeni Medya Teknik Eğitimleri (Oyun, 3B, AR, Film)</li>
+            <li><b>Faaliyet 3.1 - 3.5:</b> 5 Somut Üretim Projesi (Dijital Sanat, Oyun, AR, Tasarım Koleksiyonu)</li>
+            <li><b>Faaliyet 4.1:</b> Hafta Sonu Yaratıcı Sanat Atölyeleri</li>
+          </ul>
+        </div>
+
+        <div class="spec-section">
+          <h3>Teknik & Yangın Standartları</h3>
+          <ul class="spec-list" id="d-tech">
+            <li><b>Acil Kaçış:</b> 2.00 m kesintisiz yangın koridoru ve fotoselli kaçış kapısı.</li>
+            <li><b>Elektrik:</b> 42U Server Rack, trifaze UPS kesintisiz güç altyapısı.</li>
+            <li><b>Havalandırma:</b> Lazer ve CNC için harici helezon duman/koku emiş hattı.</li>
+            <li><b>Engelli Erişimi:</b> R150 dönüş çaplı erişilebilir WC ve engelli geçiş turnikesi.</li>
+          </ul>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <script>
+    // Room Data Store
+    const roomData = {
+      all: {
+        title: "Yeni Medya Merkezi",
+        code: "GENEL",
+        subtitle: "348 m² Tam Entegre Eğitim, Üretim ve Kuluçka Altyapısı",
+        area: "348.00 m²",
+        cap: "120 Genç / 40 Eğt.",
+        floor: "Teknik Epoksi & Halı",
+        height: "H = 3.80 m Net",
+        equip: [
+          "24 Adet Profesyonel Workstation (Çift Ekranlı, Grafik Tabletli)",
+          "CO2 Lazer Kesici (130W) ve Hassas CNC İşleme Frezesi",
+          "3D Yazıcı Çiftliği (FDM & SLA Reçine Teknolojili)",
+          "Akustik Yüzer Ses Kayıt Kabini ve Video Kurgu/Miksaj Konsolu",
+          "36 Kişilik Modüler Seminer Masaları ve Akıllı İnteraktif Tahta",
+          "Proje Koordinasyon Ofisi, Arşiv ve Dinlenme Lounge Alanı",
+          "Danışma Bankosu, Hızlı Geçiş Turnikeleri ve Yangın Kaçış Koridoru"
+        ],
+        acts: [
+          "<b>Faaliyet 1.3:</b> Yeni Medya Eğitim ve Üretim Merkezi Kurulumu",
+          "<b>Faaliyet 2.3:</b> Yeni Medya Teknik Eğitimleri (Oyun, 3B, AR, Film)",
+          "<b>Faaliyet 3.1 - 3.5:</b> 5 Somut Üretim Projesi (Dijital Sanat, Oyun, AR, Tasarım Koleksiyonu)",
+          "<b>Faaliyet 4.1:</b> Hafta Sonu Yaratıcı Sanat Atölyeleri"
+        ],
+        tech: [
+          "<b>Acil Kaçış:</b> 2.00 m kesintisiz yangın koridoru ve fotoselli kaçış kapısı.",
+          "<b>Elektrik:</b> 42U Server Rack, trifaze UPS kesintisiz güç altyapısı.",
+          "<b>Havalandırma:</b> Lazer ve CNC için harici helezon duman/koku emiş hattı.",
+          "<b>Engelli Erişimi:</b> R150 dönüş çaplı erişilebilir WC ve engelli geçiş turnikesi."
+        ]
+      },
+      lab: {
+        title: "Bilişim ve Dijital Tasarım Lab.",
+        code: "M-01",
+        subtitle: "Yüksek Performanslı Modelleme, Oyun Geliştirme ve Render Laboratuvarı",
+        area: "66.00 m² (Net)",
+        cap: "24 İş İstasyonu",
+        floor: "Antistatik ESD Epoksi",
+        height: "H = 3.80 m",
+        equip: [
+          "4 Adet 6'lı Ada Çalışma Masası (Toplam 24 Kişilik İstasyon)",
+          "Her İstasyonda: Çift Monitör, Yüksek Donanımlı PC, Grafik Tablet, Keson",
+          "24 Adet Ergonomik 5 Tekerlekli Ofis Koltuğu",
+          "120 İnç İnteraktif 4K Sunum Perdesi & Render Vitrini",
+          "42U Server & IT Rack Kabini + Merkezi Kesintisiz Güç Kaynağı (UPS)",
+          "Endüstriyel Hassas Klima İklimlendirme İç Ünitesi"
+        ],
+        acts: [
+          "<b>Faaliyet 2.3:</b> Oyun Geliştirme, 3B Modelleme ve Dijital Sanat Teknik Eğitimleri",
+          "<b>Faaliyet 3.5:</b> 7 Adet Tematik Dijital Oyun Geliştirme Projesi",
+          "<b>Faaliyet 3.1:</b> Aydos'un 8 Tematik Anlatısına Dayalı Dijital Sanat Tasarımı"
+        ],
+        tech: [
+          "Trifaze Yüksek Akım Korumalı Priz Hatları & UPS Yedeklemesi",
+          "Unreal Engine 5, Unity, Blender, Adobe CC ve Üretken Yapay Zekâ Lisansları",
+          "Yangın Duman Dedektörü ve Antistatik Topraklama Barası"
+        ]
+      },
+      proto: {
+        title: "Prototipleme ve Üretim Atölyesi",
+        code: "M-02",
+        subtitle: "Fiziksel İmalat, 3D Baskı, Lazer Kesim ve Ahşap-Mekanik Atölyesi",
+        area: "66.00 m² (Net)",
+        cap: "18 Kişi",
+        floor: "Ağır Yük Poliüretan",
+        height: "H = 3.80 m",
+        equip: [
+          "130W Endüstriyel CO2 Lazer Kesici (Harici Duman Tahliye Borulu)",
+          "Hassas Masaüstü CNC Router (Akrilik Ses ve Toz Koruma Kabinli)",
+          "3D Yazıcı Çiftliği Metal Rafı (4x FDM + 2x SLA Reçine Yazıcı + Kürleme)",
+          "3B Optik El Tarayıcısı ve Motorlu Döner Kalibrasyon Tablası",
+          "Masif Ahşap Kasap Bloğu Ağır İş Tezgâhı (Çift Mengene & 8 Tabure)",
+          "Duvar Boyu Takım Panosu (Pegboard) ve Kilitli Kimyasal Dolabı",
+          "Sarı-Siyah İş Güvenliği Zonu ve Göz Duşu İstasyonu"
+        ],
+        acts: [
+          "<b>Faaliyet 3.3:</b> Aydos Tasarım ve Yaratıcı Ürün Koleksiyonu Geliştirme (20 Özgün Desen)",
+          "<b>Faaliyet 2.3:</b> 3B Obje ve Fiziksel Prototipleme Teknik Eğitimi",
+          "<b>Faaliyet 3.4:</b> Kaleye Özgü Dijital Enstalasyonların Kaide ve Gövde İmalatı"
+        ],
+        tech: [
+          "Toz, Koku ve Reçine Buharını Dışarı Atan Mekanik Emiş Sistemi",
+          "Yangın Güvenlik Dolabı, Yangın Söndürme Tüpleri ve Acil Stop Butonları",
+          "Darbelere ve Kimyasallara Dayanıklı Aşınmaz Zemin Kaplaması"
+        ]
+      },
+      booth: {
+        title: "Ses Kayıt ve Dublaj Kabini",
+        code: "M-03A",
+        subtitle: "Akustik Yüzer Oda Standardında Vokal, Enstrüman ve SFX Kayıt Stüdyosu",
+        area: "14.90 m² (Net)",
+        cap: "4 Kişi",
+        floor: "Akustik Halı Karo",
+        height: "H = 3.40 m Asma Tavan",
+        equip: [
+          "Akustik Yüzer Döşeme ve Çift Cidar Ses Yalıtımı (STC 60)",
+          "Stüdyo Tipi Büyük Diyaframlı Kondenser Mikrofon & Ağır Boom Stand",
+          "Pop Filter, Nota Sehpası ve Müzisyen/Seslendirmen Taburesi",
+          "Duvarlarda Ahşap QRD Difüzörler ve Akustik Bas Tuzakları (Bass Traps)",
+          "Mix Odasına Bakan Akustik Çift Cam Açılı Gözetleme Penceresi"
+        ],
+        acts: [
+          "<b>Faaliyet 3.1:</b> Aydos'un 8 Tematik Anlatısı İçin Seslendirme ve Şiir Kayıtları",
+          "<b>Faaliyet 3.5:</b> 7 Dijital Oyunun Karakter Sesleri ve Diyalog Kayıtları",
+          "<b>Faaliyet 5.3:</b> Tanıtım Belgeseli ve Tanıtım Filmleri Dublajı"
+        ],
+        tech: [
+          "Tam Ses Geçirmez Akustik Kapı (Acoustic Drop Seal Sistemli)",
+          "Sessiz Laminer Akışlı Bağımsız Havalandırma Menfezi",
+          "Sıfır Titreşim ve Sıfır Rezonans Kabin Mimarisi"
+        ]
+      },
+      mix: {
+        title: "Video Kurgu ve Miksaj Odası",
+        code: "M-03B",
+        subtitle: "Post-Prodüksiyon, Renk Düzenleme, SFX Mastering ve Kurgu Kontrol Odası",
+        area: "19.10 m² (Net)",
+        cap: "4 Kişi",
+        floor: "Akustik Yalıtımlı Zemin",
+        height: "H = 3.60 m",
+        equip: [
+          "Ergonomik DAW Mastering ve Kurgu Masası (2.40m)",
+          "3 Adet Referans Monitörü (Renk Grading, Video Zaman Çizelgesi, Miks Konsolu)",
+          "Çift Aktif Referans Stüdyo Monitör Hoparlörü (İzolasyon Ayaklı)",
+          "16 Kanal Motorize Fader Konsolu ve Harici DSP Ses Kartı",
+          "Yönetmen ve Müşteri Dinleme Koltuğu (Arka Duvar Difüzörlü)"
+        ],
+        acts: [
+          "<b>Faaliyet 3.1 & 3.5:</b> 8 Tema ve 7 Oyunun Müzik ve Ses Efekti (SFX) Miksajı",
+          "<b>Faaliyet 5.3:</b> Tanıtım Filmleri, Kısa Videolar ve Teaser Kurguları",
+          "<b>Faaliyet 2.3:</b> Video Kurgu ve Yeni Medya Prodüksiyonu Uygulamaları"
+        ],
+        tech: [
+          "STC 55 Ses İzolasyonlu Çift Kat Alçıpan Duvar Mimarisi",
+          "Kalibre Edilmiş Akustik Dinleme Üçgeni (Sweet Spot)",
+          "Doğrudan Kayıt Kabini İçi Gözlem Camı ve Talkback İletişim Hattı"
+        ]
+      },
+      seminar: {
+        title: "Genel Eğitim, Seminer ve Kritik Salonu",
+        code: "M-04",
+        subtitle: "Teorik Eğitimler, Mentörlük, Eser Kritiği ve Seminer Salonu",
+        area: "50.00 m² (Net)",
+        cap: "36 Kişi",
+        floor: "Modüler Akustik Karo",
+        height: "H = 3.80 m",
+        equip: [
+          "12 Adet Tekerlekli ve Katlanabilir Modüler Çift Kişilik Seminer Masası",
+          "24–36 Adet Konferans Tipi Ergonomik Koltuk (Esnek Düzenlenebilir)",
+          "İnteraktif Akıllı Tahta & Çift Lazer Projeksiyon Sistemi",
+          "Eğitmen Kürsüsü ve Konferans Ses Sistemi (Telsiz Yaka Mikrofonu)",
+          "Batı ve Güney Cephesi Doğal Aydınlatma Vitrin Camları"
+        ],
+        acts: [
+          "<b>Faaliyet 2.1:</b> Sanatsal ve Teorik Temel Eğitim Oturumları",
+          "<b>Faaliyet 2.4:</b> 3 Aşamalı Yaratıcı Ürün Kritiği (Fikir, Prototip, Final)",
+          "<b>Faaliyet 2.6:</b> Fikrî Mülkiyet, Lisanslama ve Ticarileştirme Seminerleri",
+          "<b>Faaliyet 2.7:</b> Kariyer, Freelance Çalışma ve Girişimcilik Programı"
+        ],
+        tech: [
+          "Modüler Tefrişat ile 'U-Düzen', 'Sınıf Düzeni' ve 'Grup Çalışması' Esnekliği",
+          "Karartma Perdeleri ve Sunum Modu Aydınlatma Otomasyonu",
+          "Tavan Tipi Yüksek Lümenli Lazer Projeksiyon Altyapısı"
+        ]
+      },
+      office: {
+        title: "Proje İdare ve Dinlenme Lounge",
+        code: "M-05",
+        subtitle: "Yönetim Ofisi, Paydaş Toplantıları, Arşiv ve Sosyal Mola Alanı",
+        area: "50.00 m² (Net)",
+        cap: "10 Kişi",
+        floor: "Lamine Parke & Halı",
+        height: "H = 3.80 m",
+        equip: [
+          "3 Adet Koordinatör ve Uzman Çalışma Masası (L-Tipi, Kesonlu)",
+          "6 Kişilik Oval Proje Koordinasyon ve Jüri Toplantı Masası",
+          "Boydan Boya Kilitli Proje Arşivi ve Evrak Dolapları",
+          "Kitchenette (Çay/Kahve Nişi, Lavabo, Mini Buzdolabı)",
+          "Dinlenme Lounge Alanı (Modern L-Koltuk ve Sehpa Grubu)"
+        ],
+        acts: [
+          "<b>Faaliyet 1.1:</b> Proje İdare Ekibi ve Ofisinin Yönetimi",
+          "<b>Faaliyet 1.2:</b> Paydaş Koordinasyonu ve Satın Alma Süreçleri",
+          "<b>Faaliyet 4.5:</b> Aydos Sanat Platformu İletişim Odağı İşletimi"
+        ],
+        tech: [
+          "Güvenli Evrak Arşivleme ve Ağ Dosya Sunucusu (NAS) Bağlantısı",
+          "Yüksek Hızlı Wi-Fi 6 ve Yönetici İçi Telefon Santrali",
+          "Sosyal Dinlenme ve Gayriresmî Mentörlük Sohbet Alanı"
+        ]
+      },
+      foyer: {
+        title: "Karşılama & Giriş Fuayesi",
+        code: "M-06",
+        subtitle: "Giriş Güvenliği, Karşılama, Turnike Sistemi ve Ana Dolaşım Omurgası",
+        area: "34.00 m² (Net)",
+        cap: "Dolaşım & Bekleme",
+        floor: "Doğal Granit Seramik",
+        height: "H = 3.80 m",
+        equip: [
+          "Çift Kanatlı Otomatik Fotoselli Kapı & Hava Perdeli Rüzgârlık",
+          "Kavisli Karşılama ve Danışma Bankosu (Resepsiyon)",
+          "2 Adet Hızlı Geçiş Optik Turnikesi + 1 Adet Geniş Engelli Geçiş Kapısı",
+          "İnteraktif Proje Tanıtım ve Bilgilendirme Kiosku",
+          "Yangın Tahliye ve Ana Dağıtım Koridoru (2.00 m Net Genişlik)"
+        ],
+        acts: [
+          "<b>Faaliyet 1.3:</b> Merkeze Giriş-Çıkış Güvenliği ve Ziyaretçi Kaydı",
+          "<b>Faaliyet 5.1:</b> Fiziksel Tanıtım, Roll-up ve Bilgilendirme Alanı",
+          "Tüm Atölye ve Laboratuvarlara Engelsiz Erişim Omurgası"
+        ],
+        tech: [
+          "Yangın Yönetmeliğine Uygun 2.00 Metre Kaçış Genişliği ve Yönlendirmeleri",
+          "Engelli Tekerlekli Sandalye Rüzgârlık ve Geçiş Standartlarına Uyum",
+          "Yangın Butonu, Acil Kaçış Armatürleri ve Yangın Dolabı Noktası"
+        ]
+      },
+      restrooms: {
+        title: "Islak Hacimler ve Servis Çekirdeği",
+        code: "M-08",
+        subtitle: "Bay WC, Bayan WC, Engelli Erişilebilir WC ve IT/Mekanik Şaft",
+        area: "32.00 m² (Net)",
+        cap: "Kullanıcı Servisleri",
+        floor: "Kaymaz Seramik Granit",
+        height: "H = 3.80 m",
+        equip: [
+          "Bay WC: 2 Adet Klozet Kabini, 2 Adet Lavabo Tezgahı, 2 Adet Pisuvar",
+          "Bayan WC: 2 Adet Klozet Kabini, 2 Adet Lavabo Tezgahı, Boy Aynası",
+          "Engelli WC: R=150 cm Tekerlekli Sandalye Manevra Alanı, Tutunma Barları, Çağrı İpi",
+          "Şaft & IT Odası: Kat Tesisat Kolon Hatları ve Yapısal Kablolama Şaftı"
+        ],
+        acts: [
+          "Tüm Katılımcı, Eğitmen ve Ziyaretçilere Hijyenik ve Erişilebilir Altyapı",
+          "Engelli Bireyler İçin TS 9111 ve Evrensel Tasarım Standartlarına Uyum"
+        ],
+        tech: [
+          "Mekanik Sürekli Havalandırma Emiş Bacası",
+          "Temassız Fotoselli Bataryalar ve Sıvı Sabunluklar (Su Tasarrufu)",
+          "Acil Durum Engelli Çağrı ve İkaz Sistemi"
+        ]
+      }
+    };
+
+    // Pan & Zoom State
+    let scale = 1.0;
+    let panX = 0;
+    let panY = 0;
+    let isDragging = false;
+    let startX = 0;
+    let startY = 0;
+
+    const wrapper = document.getElementById('viewer-wrapper');
+    const viewport = document.getElementById('plan-viewport');
+    const planImg = document.getElementById('plan-image');
+    const zoomText = document.getElementById('zoom-text');
+
+    function updateTransform() {
+      viewport.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`;
+      zoomText.textContent = `${Math.round(scale * 100)}%`;
+    }
+
+    function zoomIn() {
+      scale = Math.min(scale * 1.25, 4.0);
+      updateTransform();
+    }
+
+    function zoomOut() {
+      scale = Math.max(scale / 1.25, 0.4);
+      updateTransform();
+    }
+
+    function resetZoom() {
+      scale = 1.0;
+      panX = 0;
+      panY = 0;
+      updateTransform();
+    }
+
+    // Wheel zoom
+    wrapper.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const zoomFactor = e.deltaY < 0 ? 1.15 : 0.87;
+      scale = Math.min(Math.max(scale * zoomFactor, 0.4), 4.0);
+      updateTransform();
+    }, { passive: false });
+
+    // Drag / Pan
+    wrapper.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      startX = e.clientX - panX;
+      startY = e.clientY - panY;
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+      panX = e.clientX - startX;
+      panY = e.clientY - startY;
+      updateTransform();
+    });
+
+    window.addEventListener('mouseup', () => {
+      isDragging = false;
+    });
+
+    // Theme Switcher
+    function switchTheme(theme) {
+      document.querySelectorAll('.btn-tab').forEach(b => b.classList.remove('active'));
+      if (theme === 'blueprint') {
+        planImg.src = 'kroki_blueprint.png';
+        event.target.classList.add('active');
+        document.body.style.background = '#060e18';
+      } else {
+        planImg.src = 'kroki_mimari_plan.png';
+        event.target.classList.add('active');
+        document.body.style.background = '#0f172a';
+      }
+    }
+
+    // Room Selector & Spec Drawer
+    function selectRoom(key) {
+      document.querySelectorAll('.room-pill').forEach(p => p.classList.remove('active'));
+      event.currentTarget.classList.add('active');
+
+      const data = roomData[key] || roomData.all;
+      document.getElementById('d-title').innerHTML = `${data.title} <span class="code-tag" id="d-code">${data.code}</span>`;
+      document.getElementById('d-subtitle').textContent = data.subtitle;
+      document.getElementById('d-area').textContent = data.area;
+      document.getElementById('d-cap').textContent = data.cap;
+      document.getElementById('d-floor').textContent = data.floor;
+      document.getElementById('d-height').textContent = data.height;
+
+      const eqList = document.getElementById('d-equip');
+      eqList.innerHTML = data.equip.map(item => `<li>${item}</li>`).join('');
+
+      const actList = document.getElementById('d-acts');
+      actList.innerHTML = data.acts.map(item => `<li>${item}</li>`).join('');
+
+      const techList = document.getElementById('d-tech');
+      techList.innerHTML = data.tech.map(item => `<li>${item}</li>`).join('');
+
+      // Open drawer if collapsed
+      const drawer = document.getElementById('spec-drawer');
+      drawer.classList.remove('collapsed');
+      document.getElementById('toggle-drawer-btn').textContent = "Detay Paneli Açık";
+    }
+
+    function toggleDrawer() {
+      const drawer = document.getElementById('spec-drawer');
+      drawer.classList.toggle('collapsed');
+      const btn = document.getElementById('toggle-drawer-btn');
+      btn.textContent = drawer.classList.contains('collapsed') ? "Detay Paneli" : "Detay Paneli Açık";
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,1301 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>İSTKA Yeni Medya Eğitim ve Üretim Merkezi - Tam Bina 3D Modeli (348 m²)</title>
+  <style>
+    :root {
+      --bg: #090c10;
+      --panel: rgba(13, 17, 23, 0.90);
+      --panel-border: rgba(255, 255, 255, 0.12);
+      --c-digital: #00d2ff;
+      --c-proto: #f59e0b;
+      --c-sound: #ec4899;
+      --c-seminar: #10b981;
+      --c-office: #8b5cf6;
+      --c-foyer: #38bdf8;
+      --text: #f0f6fc;
+      --text-muted: #8b949e;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+    }
+    #canvas-container {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+    /* Top Bar */
+    .top-bar {
+      position: absolute;
+      top: 14px;
+      left: 16px;
+      right: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      pointer-events: none;
+      z-index: 10;
+    }
+    .brand-card {
+      background: var(--panel);
+      backdrop-filter: blur(14px);
+      border: 1px solid var(--panel-border);
+      padding: 12px 20px;
+      border-radius: 12px;
+      pointer-events: auto;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.5);
+    }
+    .brand-card h1 {
+      font-size: 15px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      letter-spacing: 0.3px;
+    }
+    .brand-card h1 span.badge {
+      font-size: 10px;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: 6px;
+      background: rgba(16, 185, 129, 0.2);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.4);
+    }
+    .brand-card p {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+    .btn-group {
+      display: flex;
+      gap: 8px;
+      pointer-events: auto;
+    }
+    .btn {
+      background: var(--panel);
+      backdrop-filter: blur(14px);
+      border: 1px solid var(--panel-border);
+      color: var(--text);
+      padding: 8px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+    }
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.3);
+      transform: translateY(-1px);
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #0284c7, #06b6d4);
+      border: none;
+      color: #fff;
+    }
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #0369a1, #0891b2);
+      box-shadow: 0 4px 20px rgba(6, 182, 212, 0.4);
+    }
+
+    /* Floating View Navigation */
+    .nav-bar {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      background: var(--panel);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--panel-border);
+      border-radius: 30px;
+      padding: 5px;
+      gap: 4px;
+      z-index: 10;
+      box-shadow: 0 10px 35px rgba(0,0,0,0.6);
+      max-width: 96vw;
+      overflow-x: auto;
+    }
+    .nav-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 7px 13px;
+      font-size: 11.5px;
+      font-weight: 600;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .nav-btn.active, .nav-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+    }
+
+    /* Right Side Zone Inspector */
+    .inspector {
+      position: absolute;
+      top: 80px;
+      right: 16px;
+      width: 350px;
+      background: var(--panel);
+      backdrop-filter: blur(18px);
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      padding: 18px 20px;
+      z-index: 10;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.6);
+    }
+    .inspector h2 {
+      font-size: 14.5px;
+      font-weight: 700;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .zone-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+    .inspector .tag {
+      font-size: 10.5px;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .inspector p {
+      font-size: 12px;
+      color: #cbd5e1;
+      line-height: 1.5;
+      margin-bottom: 12px;
+    }
+    .eq-list {
+      list-style: none;
+      max-height: 250px;
+      overflow-y: auto;
+    }
+    .eq-list li {
+      font-size: 11.5px;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      color: #e2e8f0;
+    }
+    .eq-list li:last-child { border-bottom: none; }
+    .eq-list li span { color: #38bdf8; font-weight: bold; }
+
+    /* Left Stats / Legend */
+    .legend-panel {
+      position: absolute;
+      bottom: 20px;
+      left: 16px;
+      background: var(--panel);
+      backdrop-filter: blur(14px);
+      border: 1px solid var(--panel-border);
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-size: 11px;
+      color: var(--text-muted);
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+    }
+    .legend-row { display: flex; align-items: center; gap: 8px; font-weight: 500; }
+    .legend-swatch { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+    /* Tooltip */
+    #tooltip {
+      position: absolute;
+      background: rgba(11, 14, 20, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      pointer-events: none;
+      display: none;
+      transform: translate(-50%, -140%);
+      white-space: nowrap;
+      z-index: 20;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.6);
+    }
+  </style>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/exporters/GLTFExporter.js"></script>
+</head>
+<body>
+
+  <div id="canvas-container"></div>
+  <div id="tooltip"></div>
+
+  <!-- Top Header -->
+  <div class="top-bar">
+    <div class="brand-card">
+      <h1>YENİ MEDYA EĞİTİM VE ÜRETİM MERKEZİ <span class="badge">348 m² • Tam Bina Konsepti</span></h1>
+      <p>120 Öğrenci & 40 Eğitmen Kapasiteli • 5 Bağımsız Fonksiyonel Alan + Karşılama Fuayesi</p>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn" id="btn-roof">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+        Çatı / Tavanı Aç/Kapat
+      </button>
+      <button class="btn" id="btn-frontwall">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="9" y1="3" x2="9" y2="21"></line></svg>
+        Ön Duvarı Gizle/Göster
+      </button>
+      <button class="btn btn-primary" id="btn-export">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+        3D Modeli İndir (.GLB)
+      </button>
+    </div>
+  </div>
+
+  <!-- Navigation View Presets -->
+  <div class="nav-bar">
+    <button class="nav-btn active" onclick="setView('iso')">Kuşbakışı (İzometrik)</button>
+    <button class="nav-btn" onclick="setView('top')">2D Mimari Plan</button>
+    <button class="nav-btn" onclick="setView('foyer')">Giriş Fuayesi & Danışma</button>
+    <button class="nav-btn" onclick="setView('digital')">Dijital Tasarım & Oyun Lab (~70 m²)</button>
+    <button class="nav-btn" onclick="setView('proto')">Prototipleme Atölyesi (~66 m²)</button>
+    <button class="nav-btn" onclick="setView('sound')">Montaj & Ses Stüdyosu (~34 m²)</button>
+    <button class="nav-btn" onclick="setView('seminar')">Seminer & Eğitim Sınıfı (~50 m²)</button>
+    <button class="nav-btn" onclick="setView('office')">Proje Ofisi & Dinlenme (~50 m²)</button>
+  </div>
+
+  <!-- Inspector Panel -->
+  <div class="inspector" id="inspector">
+    <h2 id="ins-title"><span class="zone-dot" style="background: #38bdf8;"></span> Genel Bina Yerleşimi</h2>
+    <div class="tag" id="ins-subtitle">İSTKA Yeni Medya Merkezi Mimari Programı (348 m²)</div>
+    <p id="ins-desc">
+      Merkez, 120 öğrenci ve 40 eğitimcinin eşzamanlı ve dönüşümlü çalışabileceği, tüm teknik, akustik, havalandırma ve sosyal gereksinimleri karşılayan entegre bir tesis olarak tasarlanmıştır.
+    </p>
+    <ul class="eq-list" id="ins-list">
+      <li><span>1.</span> <b>Bilişim / Oyun Laboratuvarı:</b> 20–24 iş istasyonu, trifaze UPS altyapısı, hassas klima.</li>
+      <li><span>2.</span> <b>Prototipleme Atölyesi:</b> 3D yazıcı çiftliği, CNC, lazer kesici, duman tahliyesi, antistatik zemin.</li>
+      <li><span>3.</span> <b>Montaj & Ses Stüdyosu:</b> Akustik yüzer oda, ses kayıt/dublaj kabini ve kontrol/mix odası.</li>
+      <li><span>4.</span> <b>Teorik Eğitim Sınıfı:</b> 25–30 kişilik modüler tekerlekli masa-sandalye, akıllı tahta.</li>
+      <li><span>5.</span> <b>Koordinasyon & Dinlenme:</b> Yönetim ofisi, arşiv, kitchenette, sosyal dinlenme alanı.</li>
+      <li><span>6.</span> <b>Giriş Fuayesi & Omurga:</b> Danışma-karşılama bankosu, turnikeler, 2m yangın koridoru.</li>
+    </ul>
+  </div>
+
+  <!-- Legend -->
+  <div class="legend-panel">
+    <div class="legend-row">
+      <div class="legend-swatch" style="background: var(--c-digital);"></div>
+      <span>1. Bilişim / Oyun Laboratuvarı (~70 m²)</span>
+    </div>
+    <div class="legend-row">
+      <div class="legend-swatch" style="background: var(--c-proto);"></div>
+      <span>2. Prototipleme & Üretim Atölyesi (~66 m²)</span>
+    </div>
+    <div class="legend-row">
+      <div class="legend-swatch" style="background: var(--c-sound);"></div>
+      <span>3. Montaj & Ses Stüdyosu (~34 m²)</span>
+    </div>
+    <div class="legend-row">
+      <div class="legend-swatch" style="background: var(--c-seminar);"></div>
+      <span>4. Teorik Eğitim & Seminer Sınıfı (~50 m²)</span>
+    </div>
+    <div class="legend-row">
+      <div class="legend-swatch" style="background: var(--c-office);"></div>
+      <span>5. Proje Ofisi & Dinlenme Alanı (~50 m²)</span>
+    </div>
+    <div class="legend-row">
+      <div class="legend-swatch" style="background: var(--c-foyer);"></div>
+      <span>6. Karşılama Fuayesi & Omurga Koridor (~78 m²)</span>
+    </div>
+  </div>
+
+  <script>
+    // ==========================================
+    // 1. PROCEDURAL CANVAS PBR TEXTURES
+    // ==========================================
+
+    // Texture A: Red Brick Loft Wall (Dış ve vurgulu tuğla duvarlar)
+    function createBrickTexture() {
+      const c = document.createElement('canvas');
+      c.width = 1024; c.height = 1024;
+      const ctx = c.getContext('2d');
+      ctx.fillStyle = '#833123';
+      ctx.fillRect(0, 0, 1024, 1024);
+
+      const rows = 32, cols = 16;
+      const rh = 1024 / rows, cw = 1024 / cols;
+      for (let r = 0; r < rows; r++) {
+        const offset = (r % 2 === 0) ? 0 : cw / 2;
+        for (let col = -1; col <= cols + 1; col++) {
+          const x = col * cw + offset, y = r * rh;
+          const shade = 125 + Math.floor(Math.random() * 55);
+          ctx.fillStyle = `rgb(${shade + 10}, ${Math.floor(shade * 0.35)}, ${Math.floor(shade * 0.25)})`;
+          ctx.fillRect(x + 2, y + 2, cw - 4, rh - 4);
+        }
+      }
+      ctx.fillStyle = 'rgba(210, 200, 190, 0.45)';
+      for (let r = 0; r <= rows; r++) ctx.fillRect(0, r * rh - 1, 1024, 2);
+      return new THREE.CanvasTexture(c);
+    }
+
+    // Texture B: Industrial Epoxy / Polished Concrete (Atölye & Koridor Zemini)
+    function createEpoxyTexture(baseColor) {
+      const c = document.createElement('canvas');
+      c.width = 1024; c.height = 1024;
+      const ctx = c.getContext('2d');
+      ctx.fillStyle = baseColor;
+      ctx.fillRect(0, 0, 1024, 1024);
+
+      for (let i = 0; i < 3000; i++) {
+        ctx.fillStyle = (Math.random() > 0.5) ? 'rgba(255,255,255,0.035)' : 'rgba(0,0,0,0.04)';
+        ctx.beginPath();
+        ctx.arc(Math.random() * 1024, Math.random() * 1024, 3 + Math.random() * 12, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.strokeStyle = 'rgba(50, 60, 75, 0.25)';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(0, 0, 512, 512);
+      ctx.strokeRect(512, 0, 512, 512);
+      ctx.strokeRect(0, 512, 512, 512);
+      ctx.strokeRect(512, 512, 512, 512);
+
+      const tex = new THREE.CanvasTexture(c);
+      tex.wrapS = THREE.RepeatWrapping; tex.wrapT = THREE.RepeatWrapping;
+      tex.repeat.set(3, 3);
+      return tex;
+    }
+
+    // Texture C: Acoustic Soundproof Slat Wood (Ses stüdyosu akustik difüzör ahşap panelleri)
+    function createAcousticWoodTexture() {
+      const c = document.createElement('canvas');
+      c.width = 512; c.height = 512;
+      const ctx = c.getContext('2d');
+      ctx.fillStyle = '#11141c'; // Koyu akustik keçe arka plan
+      ctx.fillRect(0, 0, 512, 512);
+
+      // Dikey ahşap çıtalar
+      for (let x = 8; x < 512; x += 32) {
+        ctx.fillStyle = '#a1622b';
+        ctx.fillRect(x, 0, 20, 512);
+        ctx.fillStyle = 'rgba(255,255,255,0.08)';
+        ctx.fillRect(x + 1, 0, 4, 512);
+        ctx.fillStyle = 'rgba(0,0,0,0.2)';
+        ctx.fillRect(x + 16, 0, 4, 512);
+      }
+      return new THREE.CanvasTexture(c);
+    }
+
+    // Texture D: Carpet Tiles (Seminer & Ofis ses emici karo halı zemin)
+    function createCarpetTileTexture() {
+      const c = document.createElement('canvas');
+      c.width = 512; c.height = 512;
+      const ctx = c.getContext('2d');
+      ctx.fillStyle = '#242b35';
+      ctx.fillRect(0, 0, 512, 512);
+
+      for (let x = 0; x < 512; x += 128) {
+        for (let y = 0; y < 512; y += 128) {
+          ctx.strokeStyle = 'rgba(0,0,0,0.35)';
+          ctx.strokeRect(x, y, 128, 128);
+          ctx.fillStyle = ((x+y) % 256 === 0) ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)';
+          ctx.fillRect(x + 2, y + 2, 124, 124);
+        }
+      }
+      const tex = new THREE.CanvasTexture(c);
+      tex.wrapS = THREE.RepeatWrapping; tex.wrapT = THREE.RepeatWrapping;
+      tex.repeat.set(4, 4);
+      return tex;
+    }
+
+    // Texture E: Hazard Warning Stripes (Lazer ve CNC zemin güvenlik sınırı)
+    function createHazardTexture() {
+      const c = document.createElement('canvas');
+      c.width = 256; c.height = 64;
+      const ctx = c.getContext('2d');
+      ctx.fillStyle = '#f59e0b';
+      ctx.fillRect(0, 0, 256, 64);
+      ctx.fillStyle = '#111827';
+      for (let x = -64; x < 320; x += 40) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0); ctx.lineTo(x + 20, 0); ctx.lineTo(x - 10, 64); ctx.lineTo(x - 30, 64);
+        ctx.closePath(); ctx.fill();
+      }
+      const tex = new THREE.CanvasTexture(c);
+      tex.wrapS = THREE.RepeatWrapping; tex.repeat.set(8, 1);
+      return tex;
+    }
+
+    // Texture F: Presentation Screen (Lab ve Seminer interaktif ekranı)
+    function createScreenTexture(title, sub) {
+      const c = document.createElement('canvas');
+      c.width = 1024; c.height = 512;
+      const ctx = c.getContext('2d');
+      ctx.fillStyle = '#0a101d';
+      ctx.fillRect(0, 0, 1024, 512);
+
+      ctx.fillStyle = '#00d2ff';
+      ctx.font = 'bold 28px sans-serif';
+      ctx.fillText(title, 40, 55);
+
+      ctx.fillStyle = '#64748b';
+      ctx.font = '16px sans-serif';
+      ctx.fillText(sub, 40, 85);
+
+      ctx.strokeStyle = 'rgba(0, 210, 255, 0.35)';
+      ctx.strokeRect(40, 120, 560, 340);
+      ctx.fillStyle = '#38bdf8';
+      ctx.font = '15px monospace';
+      ctx.fillText('> Unreal Engine 5.4 Virtual Production Core', 60, 160);
+      ctx.fillText('> 3D Digital Twin - Aydos Castle Mesh Loaded', 60, 195);
+      ctx.fillText('> Raytracing & DLSS 3.5 Activated', 60, 230);
+      ctx.fillText('> Active 24 Clients Synchronized via 10GbE', 60, 265);
+
+      ctx.fillStyle = '#34d399';
+      ctx.fillText('STATUS: ONLINE • ALL WORKSTATIONS CONNECTED', 60, 420);
+      return new THREE.CanvasTexture(c);
+    }
+
+    // ==========================================
+    // 2. SCENE SETUP (THREE.JS)
+    // ==========================================
+    const container = document.getElementById('canvas-container');
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x080b11);
+    scene.fog = new THREE.FogExp2(0x080b11, 0.012);
+
+    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 160);
+    camera.position.set(0, 25, 30);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.15;
+    container.appendChild(renderer.domElement);
+
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.maxPolarAngle = Math.PI / 2 - 0.02;
+    controls.minDistance = 4;
+    controls.maxDistance = 75;
+    controls.target.set(0, 1.4, 0);
+
+    // ==========================================
+    // 3. LIGHTING
+    // ==========================================
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.75);
+    scene.add(ambientLight);
+
+    const sunLight = new THREE.DirectionalLight(0xfff8ee, 1.05);
+    sunLight.position.set(20, 26, 16);
+    sunLight.castShadow = true;
+    sunLight.shadow.mapSize.width = 2048;
+    sunLight.shadow.mapSize.height = 2048;
+    sunLight.shadow.camera.near = 0.5;
+    sunLight.shadow.camera.far = 80;
+    sunLight.shadow.camera.left = -20;
+    sunLight.shadow.camera.right = 20;
+    sunLight.shadow.camera.top = 20;
+    sunLight.shadow.camera.bottom = -20;
+    sunLight.shadow.bias = -0.0004;
+    scene.add(sunLight);
+
+    // Accent Point Lights in Specific Wings
+    const pLight1 = new THREE.PointLight(0x00d2ff, 0.8, 16);
+    pLight1.position.set(-8, 3.0, -3);
+    scene.add(pLight1);
+
+    const pLight2 = new THREE.PointLight(0xf59e0b, 0.8, 16);
+    pLight2.position.set(8, 3.0, -3);
+    scene.add(pLight2);
+
+    const pLight3 = new THREE.PointLight(0xec4899, 0.7, 12);
+    pLight3.position.set(0, 2.8, -5);
+    scene.add(pLight3);
+
+    // ==========================================
+    // 4. MATERIALS & GEOMETRY CONSTANTS
+    // ==========================================
+    const brickTex = createBrickTexture();
+    const epoxyLightTex = createEpoxyTexture('#8a96a3');
+    const epoxyDarkTex = createEpoxyTexture('#2b3340');
+    const acousticWoodTex = createAcousticWoodTexture();
+    const carpetTex = createCarpetTileTexture();
+    const hazardTex = createHazardTexture();
+    const labScreenTex = createScreenTexture('BİLİŞİM / DİJİTAL TASARIM VE OYUN LABORATUVARI', 'İSTKA Yüksek Performanslı İş İstasyonları ve Oyun Motoru Ağı');
+
+    const brickMat = new THREE.MeshStandardMaterial({ map: brickTex, roughness: 0.85, metalness: 0.05 });
+    const innerWallMat = new THREE.MeshStandardMaterial({ color: 0x1f2633, roughness: 0.75, metalness: 0.1 });
+    const acousticWallMat = new THREE.MeshStandardMaterial({ map: acousticWoodTex, roughness: 0.65, metalness: 0.1 });
+    const floorEpoxyLight = new THREE.MeshStandardMaterial({ map: epoxyLightTex, roughness: 0.35, metalness: 0.25 });
+    const floorEpoxyDark = new THREE.MeshStandardMaterial({ map: epoxyDarkTex, roughness: 0.35, metalness: 0.25 });
+    const floorCarpet = new THREE.MeshStandardMaterial({ map: carpetTex, roughness: 0.85, metalness: 0.05 });
+
+    const steelDarkMat = new THREE.MeshStandardMaterial({ color: 0x141821, roughness: 0.35, metalness: 0.8 });
+    const steelGreyMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.45, metalness: 0.7 });
+    const woodDeskMat = new THREE.MeshStandardMaterial({ color: 0xb5783e, roughness: 0.55, metalness: 0.05 });
+    const glassMat = new THREE.MeshPhysicalMaterial({
+      color: 0x93c5fd, transparent: true, opacity: 0.32, roughness: 0.08, metalness: 0.1, transmission: 0.88, ior: 1.52, thickness: 0.08
+    });
+
+    const screenMonMat = new THREE.MeshStandardMaterial({ color: 0x0284c7, emissive: 0x0369a1, emissiveIntensity: 0.55, roughness: 0.2 });
+    const labScreenMat = new THREE.MeshBasicMaterial({ map: labScreenTex });
+
+    const mainGroup = new THREE.Group();
+    scene.add(mainGroup);
+    const interactiveObjects = [];
+
+    // BUILDING FOOTPRINT: 24.0m x 14.5m x 3.8m (~348 m²)
+    const B_W = 24.0; // -12.0 to +12.0
+    const B_D = 14.5; // -7.25 to +7.25
+    const B_H = 3.8;
+
+    // Outer Perimeter Floors
+    const baseFloor = new THREE.Mesh(new THREE.PlaneGeometry(B_W, B_D), floorEpoxyLight);
+    baseFloor.rotation.x = -Math.PI / 2;
+    baseFloor.receiveShadow = true;
+    mainGroup.add(baseFloor);
+
+    // Floor Inserts per Zone:
+    // 1. Digital Lab Floor (Carpet/Dark Epoxy)
+    const digFloor = new THREE.Mesh(new THREE.PlaneGeometry(8.0, 8.25), floorEpoxyDark);
+    digFloor.rotation.x = -Math.PI / 2;
+    digFloor.position.set(-8.0, 0.005, -3.125);
+    mainGroup.add(digFloor);
+
+    // 2. Sound Studio Floor (Warm Wood/Carpet)
+    const sndFloor = new THREE.Mesh(new THREE.PlaneGeometry(8.0, 4.25), floorCarpet);
+    sndFloor.rotation.x = -Math.PI / 2;
+    sndFloor.position.set(0, 0.005, -5.125);
+    mainGroup.add(sndFloor);
+
+    // 3. Seminar Room Floor (Carpet Tiles)
+    const semFloor = new THREE.Mesh(new THREE.PlaneGeometry(8.0, 6.25), floorCarpet);
+    semFloor.rotation.x = -Math.PI / 2;
+    semFloor.position.set(-8.0, 0.005, 4.125);
+    mainGroup.add(semFloor);
+
+    // 4. Coordination Office Floor (Carpet Tiles)
+    const ofcFloor = new THREE.Mesh(new THREE.PlaneGeometry(8.0, 6.25), floorCarpet);
+    ofcFloor.rotation.x = -Math.PI / 2;
+    ofcFloor.position.set(8.0, 0.005, 4.125);
+    mainGroup.add(ofcFloor);
+
+    // ==========================================
+    // 5. EXTERIOR WALLS & ROOF
+    // ==========================================
+    // Back Exterior Wall (Z = -7.25)
+    const backWall = new THREE.Mesh(new THREE.BoxGeometry(B_W, B_H, 0.3), brickMat);
+    backWall.position.set(0, B_H / 2, -B_D / 2);
+    backWall.receiveShadow = true;
+    mainGroup.add(backWall);
+
+    // Left Exterior Wall (X = -12.0)
+    const leftWall = new THREE.Mesh(new THREE.BoxGeometry(0.3, B_H, B_D), brickMat);
+    leftWall.position.set(-B_W / 2, B_H / 2, 0);
+    leftWall.receiveShadow = true;
+    mainGroup.add(leftWall);
+
+    // Right Exterior Wall (X = +12.0)
+    const rightWall = new THREE.Mesh(new THREE.BoxGeometry(0.3, B_H, B_D), brickMat);
+    rightWall.position.set(B_W / 2, B_H / 2, 0);
+    rightWall.receiveShadow = true;
+    mainGroup.add(rightWall);
+
+    // Front Exterior Wall (Z = +7.25) - Can be toggled, with Main Center Entrance Glass Portal
+    const frontWallGroup = new THREE.Group();
+
+    // Solid front parts
+    const fwL = new THREE.Mesh(new THREE.BoxGeometry(9.5, B_H, 0.3), brickMat);
+    fwL.position.set(-7.25, B_H / 2, B_D / 2);
+    const fwR = new THREE.Mesh(new THREE.BoxGeometry(9.5, B_H, 0.3), brickMat);
+    fwR.position.set(7.25, B_H / 2, B_D / 2);
+    frontWallGroup.add(fwL, fwR);
+
+    // Main Portal Header
+    const fwHeader = new THREE.Mesh(new THREE.BoxGeometry(5.0, B_H - 2.8, 0.3), brickMat);
+    fwHeader.position.set(0, 2.8 + (B_H - 2.8)/2, B_D / 2);
+    frontWallGroup.add(fwHeader);
+
+    // Main Entrance Double Glass Doors
+    const mainDoorFrame = new THREE.Mesh(new THREE.BoxGeometry(3.6, 2.7, 0.14), steelDarkMat);
+    mainDoorFrame.position.set(0, 1.35, B_D / 2);
+    const mainDoorL = new THREE.Mesh(new THREE.BoxGeometry(1.6, 2.5, 0.06), glassMat);
+    mainDoorL.position.set(-0.85, 1.25, B_D / 2);
+    const mainDoorR = new THREE.Mesh(new THREE.BoxGeometry(1.6, 2.5, 0.06), glassMat);
+    mainDoorR.position.set(0.85, 1.25, B_D / 2);
+    frontWallGroup.add(mainDoorFrame, mainDoorL, mainDoorR);
+
+    // Main Building Neon Signboard
+    const bldgSign = new THREE.Mesh(new THREE.BoxGeometry(4.8, 0.5, 0.12), new THREE.MeshBasicMaterial({ color: 0x00d2ff }));
+    bldgSign.position.set(0, 3.1, B_D / 2 + 0.16);
+    frontWallGroup.add(bldgSign);
+
+    mainGroup.add(frontWallGroup);
+
+    // Roof & Industrial Exposed MEP Group
+    const roofGroup = new THREE.Group();
+    const roofSlab = new THREE.Mesh(new THREE.BoxGeometry(B_W, 0.2, B_D), new THREE.MeshStandardMaterial({ color: 0x0e121a, roughness: 0.9 }));
+    roofSlab.position.set(0, B_H, 0);
+    roofGroup.add(roofSlab);
+
+    // Continuous Galvanized Ducts
+    const ductMat = new THREE.MeshStandardMaterial({ color: 0x8a97a6, metalness: 0.85, roughness: 0.3 });
+    [-4.5, 2.5].forEach(z => {
+      const duct = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.28, B_W - 1, 24), ductMat);
+      duct.rotation.z = Math.PI / 2;
+      duct.position.set(0, B_H - 0.45, z);
+      roofGroup.add(duct);
+    });
+
+    mainGroup.add(roofGroup);
+
+    // ==========================================
+    // 6. INTERIOR WALLS & PARTITIONS
+    // ==========================================
+    const innerWalls = new THREE.Group();
+
+    // Longitudinal Spine Wall 1 (separates North Labs from Central Corridor, Z = +1.0, X: -12 to -4 & +4 to +12)
+    const spineWall1 = new THREE.Mesh(new THREE.BoxGeometry(7.0, B_H, 0.2), innerWallMat);
+    spineWall1.position.set(-8.5, B_H / 2, 1.0);
+    const spineWall2 = new THREE.Mesh(new THREE.BoxGeometry(7.0, B_H, 0.2), innerWallMat);
+    spineWall2.position.set(8.5, B_H / 2, 1.0);
+    innerWalls.add(spineWall1, spineWall2);
+
+    // Longitudinal Spine Wall 2 (separates Sound Studio from Central Corridor, Z = -3.0, X: -4 to +4)
+    const sndBackWall = new THREE.Mesh(new THREE.BoxGeometry(6.6, B_H, 0.25), innerWallMat);
+    sndBackWall.position.set(0, B_H / 2, -3.0);
+    innerWalls.add(sndBackWall);
+
+    // Transverse Divider Walls:
+    // Div 1: Left Wing divider (X = -4.0, from Z: -7.25 to +7.25) with doorways
+    const divLeft1 = new THREE.Mesh(new THREE.BoxGeometry(0.2, B_H, 8.25), innerWallMat);
+    divLeft1.position.set(-4.0, B_H / 2, -3.125);
+    const divLeft2 = new THREE.Mesh(new THREE.BoxGeometry(0.2, B_H, 6.25), innerWallMat);
+    divLeft2.position.set(-4.0, B_H / 2, 4.125);
+    innerWalls.add(divLeft1, divLeft2);
+
+    // Div 2: Right Wing divider (X = +4.0, from Z: -7.25 to +7.25)
+    const divRight1 = new THREE.Mesh(new THREE.BoxGeometry(0.2, B_H, 8.25), innerWallMat);
+    divRight1.position.set(4.0, B_H / 2, -3.125);
+    const divRight2 = new THREE.Mesh(new THREE.BoxGeometry(0.2, B_H, 6.25), innerWallMat);
+    divRight2.position.set(4.0, B_H / 2, 4.125);
+    innerWalls.add(divRight1, divRight2);
+
+    // Sound Studio Acoustic Floating Internal Partition (X = -0.5, Z: -7.25 to -3.0)
+    // Divides Vocal/Foley Recording Booth from Mix/Control Room
+    const studioDiv = new THREE.Mesh(new THREE.BoxGeometry(0.2, B_H, 4.25), acousticWallMat);
+    studioDiv.position.set(-0.5, B_H / 2, -5.125);
+    innerWalls.add(studioDiv);
+
+    // Acoustic Studio Observation Window (Double-glazed acoustic glass)
+    const studioWindow = new THREE.Mesh(new THREE.BoxGeometry(0.08, 1.4, 2.0), glassMat);
+    studioWindow.position.set(-0.5, 1.7, -5.125);
+    innerWalls.add(studioWindow);
+
+    mainGroup.add(innerWalls);
+
+    // Helper: Register Interactive Zone
+    function registerZone(name, category, desc, items, pos, size, color) {
+      const zMesh = new THREE.Mesh(
+        new THREE.BoxGeometry(size.x, size.y, size.z),
+        new THREE.MeshBasicMaterial({ color: color, wireframe: true, transparent: true, opacity: 0.12 })
+      );
+      zMesh.position.copy(pos);
+      zMesh.userData = { name, category, desc, items, color };
+      mainGroup.add(zMesh);
+      interactiveObjects.push(zMesh);
+      return zMesh;
+    }
+
+    // ==========================================
+    // 7. POPULATING THE 5 FUNCTIONAL ZONES + FOYER
+    // ==========================================
+
+    // -------------------------------------------------------------
+    // ZONE 1: BİLİŞİM / DİJİTAL TASARIM VE OYUN LABORATUVARI (~70 m²)
+    // (Kuzeybatı Kanadı: X: -12.0 to -4.0, Z: -7.25 to +1.0)
+    // -------------------------------------------------------------
+    const digLabGroup = new THREE.Group();
+
+    // Front Wall Presentation 120" Screen
+    const digScreen = new THREE.Mesh(new THREE.BoxGeometry(4.2, 2.2, 0.08), labScreenMat);
+    digScreen.position.set(-8.0, 2.3, -B_D / 2 + 0.15);
+    digLabGroup.add(digScreen);
+
+    // Inverter Precision Air Conditioning Units (2x)
+    [-11.5, -4.5].forEach(x => {
+      const acUnit = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.45, 0.3), new THREE.MeshStandardMaterial({ color: 0xf8fafc }));
+      acUnit.position.set(x, 3.2, -B_D / 2 + 0.2);
+      digLabGroup.add(acUnit);
+    });
+
+    // 24 High-Performance Workstations (arranged in 4 pods of 6)
+    for (let podZ of [-4.5, -1.5]) {
+      for (let podX of [-10.0, -6.0]) {
+        // Pod Desk
+        const pDesk = new THREE.Mesh(new THREE.BoxGeometry(2.8, 0.08, 1.5), woodDeskMat);
+        pDesk.position.set(podX, 0.74, podZ);
+        const pLegs = new THREE.Mesh(new THREE.BoxGeometry(2.6, 0.7, 1.3), steelDarkMat);
+        pLegs.position.set(podX, 0.35, podZ);
+        digLabGroup.add(pDesk, pLegs);
+
+        // 6 Workstations per pod (3 north, 3 south)
+        for (let i = 0; i < 3; i++) {
+          const dx = (i - 1) * 0.85;
+          // Dual Monitors North
+          const monN = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.32, 0.03), screenMonMat);
+          monN.position.set(podX + dx, 1.02, podZ - 0.45);
+          digLabGroup.add(monN);
+          // Chair North
+          const chairN = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.05, 0.38), steelDarkMat);
+          chairN.position.set(podX + dx, 0.48, podZ - 1.05);
+          digLabGroup.add(chairN);
+
+          // Dual Monitors South
+          const monS = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.32, 0.03), screenMonMat);
+          monS.position.set(podX + dx, 1.02, podZ + 0.45);
+          monS.rotation.y = Math.PI;
+          digLabGroup.add(monS);
+          // Chair South
+          const chairS = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.05, 0.38), steelDarkMat);
+          chairS.position.set(podX + dx, 0.48, podZ + 1.05);
+          digLabGroup.add(chairS);
+        }
+      }
+    }
+
+    // Trifaze UPS Power Distribution Cabinet
+    const upsCab = new THREE.Mesh(new THREE.BoxGeometry(0.8, 2.0, 0.8), steelDarkMat);
+    upsCab.position.set(-11.4, 1.0, 0.4);
+    digLabGroup.add(upsCab);
+
+    mainGroup.add(digLabGroup);
+    registerZone(
+      "Bilişim / Dijital Tasarım ve Oyun Laboratuvarı",
+      "Yeni Medya Merkezi (~70 m²)",
+      "24 kişilik yüksek performanslı iş istasyonları (render, 3B modelleme, Unreal Engine/Unity oyun motoru ve yapay zekâ), trifaze UPS altyapısı, hassas klima iklimlendirme ve merkezi sunum perdesi.",
+      [
+        "Kapasite: 24 Kişilik Eşzamanlı İş İstasyonu",
+        "Trifaze Yüksek Akım Korumalı Priz Hatları & UPS",
+        "Yüksek Hızlı 10GbE LAN & Fiber Ağ Altyapısı",
+        "Geniş Çift Ekran & Wacom Grafik Tablet Masaları",
+        "Ergonomik File Sırtlı Ofis Çalışma Koltukları",
+        "Isı Dengeleyici İnverter / Hassas İklimlendirme Sistemi"
+      ],
+      new THREE.Vector3(-8.0, 1.4, -3.125),
+      new THREE.Vector3(7.6, 2.8, 7.8),
+      0x00d2ff
+    );
+
+    // -------------------------------------------------------------
+    // ZONE 2: PROTOTİPLEME VE FİZİKSEL ÜRETİM ATÖLYESİ (~66 m²)
+    // (Kuzeydoğu Kanadı: X: +4.0 to +12.0, Z: -7.25 to +1.0)
+    // -------------------------------------------------------------
+    const protoGroup = new THREE.Group();
+
+    // Hazard Safety Floor Box around CNC & Laser
+    const hzMesh = new THREE.Mesh(new THREE.PlaneGeometry(6.5, 3.2), new THREE.MeshBasicMaterial({ map: hazardTex }));
+    hzMesh.rotation.x = -Math.PI / 2;
+    hzMesh.position.set(8.0, 0.01, -5.5);
+    protoGroup.add(hzMesh);
+
+    // CO2 Lazer Kesici (Harici spiral duman tahliye filtreli)
+    const laserUnit = new THREE.Mesh(new THREE.BoxGeometry(2.0, 1.0, 1.3), steelDarkMat);
+    laserUnit.position.set(10.5, 0.5, -5.5);
+    const laserLid = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.1, 1.0), new THREE.MeshStandardMaterial({ color: 0xf59e0b, transparent: true, opacity: 0.6 }));
+    laserLid.position.set(10.5, 1.05, -5.5);
+    protoGroup.add(laserUnit, laserLid);
+
+    // Harici Spiral Tahliye Borusu (Dış duvara bağlanan)
+    const exPipe = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 2.4, 16), ductMat);
+    exPipe.rotation.x = Math.PI / 3;
+    exPipe.position.set(11.4, 1.8, -6.3);
+    protoGroup.add(exPipe);
+
+    // Masaüstü CNC Freze & Ses Yalıtım Kabini
+    const cncDesk = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.85, 1.1), steelDarkMat);
+    cncDesk.position.set(6.2, 0.425, -5.5);
+    const cncCabin = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.75, 0.85), glassMat);
+    cncCabin.position.set(6.2, 1.25, -5.5);
+    protoGroup.add(cncDesk, cncCabin);
+
+    // 3D Yazıcı Çiftliği (Yüksek Yoğunluklu Metal Raf, 6 adet 3D yazıcı)
+    const prRack = new THREE.Mesh(new THREE.BoxGeometry(0.7, 2.3, 3.6), steelDarkMat);
+    prRack.position.set(11.4, 1.15, -1.2);
+    protoGroup.add(prRack);
+
+    // 3D Döner Tablalı Tarayıcı Masası
+    const scDesk = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.85, 1.2), steelDarkMat);
+    scDesk.position.set(9.0, 0.425, -1.2);
+    const turntable = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 0.06, 32), new THREE.MeshStandardMaterial({ color: 0xf59e0b }));
+    turntable.position.set(9.0, 0.88, -1.2);
+    protoGroup.add(scDesk, turntable);
+
+    // Masif Ahşap El Aletleri ve Montaj Tezgâhı (Orta Alan)
+    const craftBench = new THREE.Mesh(new THREE.BoxGeometry(4.0, 0.12, 1.6), woodDeskMat);
+    craftBench.position.set(7.5, 0.84, -2.8);
+    const craftLegs = new THREE.Mesh(new THREE.BoxGeometry(3.6, 0.78, 1.4), steelDarkMat);
+    craftLegs.position.set(7.5, 0.39, -2.8);
+    protoGroup.add(craftBench, craftLegs);
+
+    // Nem Kontrollü Filament & Reçine Saklama Dolabı
+    const dryCab = new THREE.Mesh(new THREE.BoxGeometry(1.4, 2.0, 0.6), steelGreyMat);
+    dryCab.position.set(5.0, 1.0, 0.4);
+    protoGroup.add(dryCab);
+
+    mainGroup.add(protoGroup);
+    registerZone(
+      "Prototipleme ve Fiziksel Üretim Atölyesi",
+      "Yeni Medya Merkezi (~66 m²)",
+      "3D yazıcı çiftliği, masaüstü CNC freze, CO2 lazer kesici, 3B döner tablalı tarayıcı, duman tahliye emiş sistemi ve nem kontrollü saklama dolapları.",
+      [
+        "6x Çok Malzemeli 3D Yazıcı (FDM / Reçine Çiftliği)",
+        "Ses Yalıtımlı Masaüstü CNC Tezgahı",
+        "CO2 Lazer Kesici & Harici Spiral Duman Emiş Sistemi",
+        "Döner Tablalı Yüksek Çözünürlüklü 3B Optik Tarayıcı",
+        "Masif Ahşap Montaj Tezgâhı & Mengene Donanımları",
+        "Nem Kontrollü Filament/Reçine Dolapları & İSG İstasyonu",
+        "Kimyasal ve Ağır Yüke Dayanıklı Antistatik Zemin"
+      ],
+      new THREE.Vector3(8.0, 1.4, -3.125),
+      new THREE.Vector3(7.6, 2.8, 7.8),
+      0xf59e0b
+    );
+
+    // -------------------------------------------------------------
+    // ZONE 3: MONTAJ ODASI VE SES STÜDYOSU (~34 m²)
+    // (Kuzey Merkez: X: -4.0 to +4.0, Z: -7.25 to -3.0)
+    // -------------------------------------------------------------
+    const soundGroup = new THREE.Group();
+
+    // Acoustic Floating Walls lining
+    const sndWallL = new THREE.Mesh(new THREE.BoxGeometry(0.15, B_H, 4.0), acousticWallMat);
+    sndWallL.position.set(-3.85, B_H / 2, -5.125);
+    const sndWallR = new THREE.Mesh(new THREE.BoxGeometry(0.15, B_H, 4.0), acousticWallMat);
+    sndWallR.position.set(3.85, B_H / 2, -5.125);
+    soundGroup.add(sndWallL, sndWallR);
+
+    // Section 3A: Ses Kayıt & Dublaj Kabini (Sol: X: -4.0 to -0.5, 15 m²)
+    // Studio Condenser Mic on Boom Stand
+    const micStand = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 1.5, 8), steelGreyMat);
+    micStand.position.set(-2.2, 0.75, -5.2);
+    const popFilter = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 0.02, 16), steelDarkMat);
+    popFilter.rotation.x = Math.PI / 2;
+    popFilter.position.set(-2.2, 1.45, -5.0);
+    soundGroup.add(micStand, popFilter);
+
+    // Foley Props Table
+    const foleyTable = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.85, 0.8), woodDeskMat);
+    foleyTable.position.set(-3.0, 0.425, -6.4);
+    soundGroup.add(foleyTable);
+
+    // Section 3B: Kontrol ve Mix Masası (Sağ: X: -0.5 to +4.0, 19 m²)
+    // Professional Audio Mixing Console Desk
+    const mixDesk = new THREE.Mesh(new THREE.BoxGeometry(2.8, 0.85, 1.2), steelDarkMat);
+    mixDesk.position.set(1.8, 0.425, -5.2);
+    soundGroup.add(mixDesk);
+
+    // Genelec-style Nearfield Reference Monitors (2x)
+    [0.7, 2.9].forEach(x => {
+      const spk = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.4, 0.28), steelDarkMat);
+      spk.position.set(x, 1.15, -5.6);
+      soundGroup.add(spk);
+    });
+
+    // Dual 32" Video Editing & DAW Timeline Screens
+    const dawScreens = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.45, 0.04), screenMonMat);
+    dawScreens.position.set(1.8, 1.15, -5.5);
+    soundGroup.add(dawScreens);
+
+    // Executive Sound Engineer Chair
+    const engChair = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.5, 0.45), steelDarkMat);
+    engChair.position.set(1.8, 0.5, -4.3);
+    soundGroup.add(engChair);
+
+    mainGroup.add(soundGroup);
+    registerZone(
+      "Montaj Odası ve Ses Stüdyosu",
+      "Yeni Medya Merkezi (~34 m²)",
+      "Yüzer oda (soundproofing) yalıtımlı, RT60 < 0.3s standartlarında vokal/foley kayıt kabini ve stüdyo referans monitörlü kontrol/mix masası.",
+      [
+        "Çift Cidarlı Ses Yalıtımlı Yüzer Oda (Floating Room)",
+        "Akustik Çift Camlı Gözlem Penceresi & Akustik Kapılar",
+        "Vokal ve Foley Dublaj Kayıt Kabini & Pop Filtreler",
+        "Stüdyo Referans Monitörleri (Genelec/Yamaha)",
+        "Çift Ekranlı 4K Montaj & DAW Miksaj İş İstasyonu",
+        "Akustik Susturuculu Sessiz Havalandırma Sistemi"
+      ],
+      new THREE.Vector3(0, 1.4, -5.125),
+      new THREE.Vector3(7.6, 2.8, 4.0),
+      0xec4899
+    );
+
+    // -------------------------------------------------------------
+    // ZONE 4: TEORİK EĞİTİM VE SEMİNER SINIFI (~50 m²)
+    // (Güneybatı Kanadı: X: -12.0 to -4.0, Z: +1.0 to +7.25)
+    // -------------------------------------------------------------
+    const semGroup = new THREE.Group();
+
+    // Front Smartboard & Projection Screen (Z = 1.3)
+    const semBoard = new THREE.Mesh(new THREE.BoxGeometry(3.6, 1.8, 0.06), new THREE.MeshBasicMaterial({ color: 0x1e293b }));
+    semBoard.position.set(-8.0, 2.0, 1.15);
+    semGroup.add(semBoard);
+
+    // Instructor Mobile Podium
+    const semPodium = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1.1, 0.6), steelDarkMat);
+    semPodium.position.set(-5.5, 0.55, 1.8);
+    semGroup.add(semPodium);
+
+    // 12 Modular Interlocking Nesting Tables (Tekerlekli kenetlenebilir masalar, 24-28 sandalye)
+    // Arranged in modular collaborative clusters
+    for (let r = 0; r < 3; r++) {
+      const zPos = 2.8 + r * 1.4;
+      for (let c = 0; c < 4; c++) {
+        const xPos = -10.5 + c * 1.7;
+        // Table
+        const tMesh = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.05, 0.7), new THREE.MeshStandardMaterial({ color: 0x38bdf8 }));
+        tMesh.position.set(xPos, 0.72, zPos);
+        const tLegs = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.7, 0.5), steelGreyMat);
+        tLegs.position.set(xPos, 0.35, zPos);
+        semGroup.add(tMesh, tLegs);
+
+        // 2 Chairs per table
+        [-0.35, 0.35].forEach(ox => {
+          const ch = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.45, 0.35), steelDarkMat);
+          ch.position.set(xPos + ox, 0.45, zPos + 0.55);
+          semGroup.add(ch);
+        });
+      }
+    }
+
+    mainGroup.add(semGroup);
+    registerZone(
+      "Teorik Eğitim ve Seminer Sınıfı",
+      "Yeni Medya Merkezi (~50 m²)",
+      "25–30 kişilik kapasiteye sahip, birbirine kenetlenebilir ve taşınabilir tekerlekli modüler masa ve sandalyelerle atölye veya seminer formatına dönüşebilen eğitim salonu.",
+      [
+        "Kapasite: 25–30 Kişilik Modüler Oturma Düzeni",
+        "Birbirine Kenetlenebilir & Taşınabilir Tekerlekli Masalar",
+        "İstiflenebilir Konferans ve Çalışma Sandalyeleri",
+        "Merkezi Akıllı Tahta & Lazer Projeksiyon Alanı",
+        "Grup Çalışması ve U Düzenine Hızlı Dönüşüm İmkânı"
+      ],
+      new THREE.Vector3(-8.0, 1.4, 4.125),
+      new THREE.Vector3(7.6, 2.8, 5.8),
+      0x10b981
+    );
+
+    // -------------------------------------------------------------
+    // ZONE 5: PROJE KOORDİNASYON OFİSİ VE DİNLENME ALANI (~50 m²)
+    // (Güneydoğu Kanadı: X: +4.0 to +12.0, Z: +1.0 to +7.25)
+    // -------------------------------------------------------------
+    const ofcGroup = new THREE.Group();
+
+    // 5A: Koordinasyon Masaları & Toplantı Masası (Kuzey Bölüm: Z: 1.0 to 4.2)
+    // 3x L-Shaped Executive Work Desks
+    [-3.0, 0, 3.0].forEach(ox => {
+      const oDesk = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.75, 0.8), woodDeskMat);
+      oDesk.position.set(8.0 + (ox * 0.7), 0.375, 2.2);
+      ofcGroup.add(oDesk);
+    });
+
+    // 6-Person Meeting Table
+    const meetTable = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.75, 1.1), steelDarkMat);
+    meetTable.position.set(8.0, 0.375, 3.4);
+    ofcGroup.add(meetTable);
+
+    // Tall Archive and Document Storage Cabinets (Kilitli evrak dolapları)
+    const archCab = new THREE.Mesh(new THREE.BoxGeometry(3.6, 2.2, 0.5), steelGreyMat);
+    archCab.position.set(8.0, 1.1, 1.25);
+    ofcGroup.add(archCab);
+
+    // 5B: Dinlenme, Sosyal Mola ve Çay Ocağı (Güney Bölüm: Z: 4.5 to 7.0)
+    // Kitchenette Counter (Çay/Kahve Barı)
+    const kitchenCounter = new THREE.Mesh(new THREE.BoxGeometry(3.2, 0.9, 0.65), steelDarkMat);
+    kitchenCounter.position.set(6.0, 0.45, 6.7);
+    ofcGroup.add(kitchenCounter);
+
+    // Lounge Sofas & Coffee Table
+    const sofa = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.65, 0.9), new THREE.MeshStandardMaterial({ color: 0x8b5cf6, roughness: 0.5 }));
+    sofa.position.set(10.0, 0.35, 5.6);
+    const coffeeTable = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.4, 0.6), woodDeskMat);
+    coffeeTable.position.set(10.0, 0.2, 4.4);
+    ofcGroup.add(sofa, coffeeTable);
+
+    mainGroup.add(ofcGroup);
+    registerZone(
+      "Proje Koordinasyon Ofisi ve Dinlenme Alanı",
+      "Yeni Medya Merkezi (~50 m²)",
+      "Proje koordinatörü, eğitmenler ve asistanlar için çalışma istasyonları, toplantı masası, kilitli arşiv dolapları, çay ocağı ve konforlu dinlenme alanı.",
+      [
+        "Proje Ekibi (Koordinatör, Eğitmenler) Çalışma Masaları",
+        "6 Kişilik Hızlı İstişare & Toplantı Masası",
+        "Kilitli Arşiv ve Evrak Saklama Dolapları",
+        "Dinlenme ve Mola / Çay Ocağı Kitchenette Barı",
+        "Konforlu Modüler Sedir ve Dinlenme Koltukları"
+      ],
+      new THREE.Vector3(8.0, 1.4, 4.125),
+      new THREE.Vector3(7.6, 2.8, 5.8),
+      0x8b5cf6
+    );
+
+    // -------------------------------------------------------------
+    // ZONE 6: GİRİŞ FUAYESİ, DANIŞMA VE MERKEZİ OMURGA KORİDOR (~78 m²)
+    // (Merkez Koridor & Fuaye)
+    // -------------------------------------------------------------
+    const foyerGroup = new THREE.Group();
+
+    // Curved Reception Desk (Danışma & Karşılama Bankosu)
+    const recDesk = new THREE.Mesh(new THREE.BoxGeometry(3.2, 1.1, 0.9), steelDarkMat);
+    recDesk.position.set(0, 0.55, 4.8);
+    const recTop = new THREE.Mesh(new THREE.BoxGeometry(3.4, 0.08, 1.0), woodDeskMat);
+    recTop.position.set(0, 1.14, 4.8);
+    foyerGroup.add(recDesk, recTop);
+
+    // Interactive Digital Info Totem Kiosk
+    const totem = new THREE.Mesh(new THREE.BoxGeometry(0.6, 1.8, 0.3), new THREE.MeshStandardMaterial({ color: 0x0284c7 }));
+    totem.position.set(-2.0, 0.9, 6.0);
+    foyerGroup.add(totem);
+
+    // Optical Turnstiles (Geçiş Turnikeleri)
+    [-1.2, 1.2].forEach(tx => {
+      const turnstile = new THREE.Mesh(new THREE.BoxGeometry(0.3, 1.0, 1.0), steelGreyMat);
+      turnstile.position.set(tx, 0.5, 3.6);
+      foyerGroup.add(turnstile);
+    });
+
+    // Technical Utility & Restrooms Block (X: -3.8 to +3.8, Z: -2.8 to +0.8 = 16 m²)
+    const techBlock = new THREE.Mesh(new THREE.BoxGeometry(7.6, B_H, 3.6), innerWallMat);
+    techBlock.position.set(0, B_H / 2, -1.0);
+    foyerGroup.add(techBlock);
+
+    // Restroom Doors (WC Bay / Bayan / Engelli)
+    [-2.2, 0, 2.2].forEach(dx => {
+      const wcDoor = new THREE.Mesh(new THREE.BoxGeometry(0.9, 2.2, 0.05), steelGreyMat);
+      wcDoor.position.set(dx, 1.1, 0.82);
+      foyerGroup.add(wcDoor);
+    });
+
+    mainGroup.add(foyerGroup);
+    registerZone(
+      "Giriş Fuayesi, Danışma ve Merkez Koridor",
+      "Yeni Medya Merkezi (~78 m²)",
+      "Merkezi bina ana girişi, danışma-karşılama bankosu, dijital bilgilendirme kiosku, turnikeler, 2 metre genişliğinde kesintisiz yangın/ulaşım koridoru ve bay/bayan/engelli WC servisleri.",
+      [
+        "Danışma ve Karşılama Bankosu (Reception)",
+        "Dijital Bilgilendirme ve Yönlendirme Totemi (Kiosk)",
+        "Kartlı / Optik Geçiş Turnike İstasyonu",
+        "2.0 Metre Genişliğinde Yangın Kaçış ve Sirkülasyon Koridoru",
+        "Merkezi Dağıtım & UPS / Zayıf Akım Teknik Odası",
+        "Bay / Bayan / Engelli Erişilebilir WC Islak Hacimleri"
+      ],
+      new THREE.Vector3(0, 1.4, 2.5),
+      new THREE.Vector3(7.6, 2.8, 5.0),
+      0x38bdf8
+    );
+
+    // ==========================================
+    // 8. INTERACTION & CAMERA PRESETS
+    // ==========================================
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+    const tooltip = document.getElementById('tooltip');
+    let hoveredZone = null;
+
+    window.addEventListener('mousemove', (e) => {
+      mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+      mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+
+      raycaster.setFromCamera(mouse, camera);
+      const hits = raycaster.intersectObjects(interactiveObjects);
+
+      if (hits.length > 0) {
+        const obj = hits[0].object;
+        if (hoveredZone !== obj) {
+          hoveredZone = obj;
+          container.style.cursor = 'pointer';
+        }
+        tooltip.style.display = 'block';
+        tooltip.style.left = e.clientX + 'px';
+        tooltip.style.top = e.clientY + 'px';
+        tooltip.innerHTML = `${obj.userData.name}`;
+      } else {
+        if (hoveredZone) {
+          hoveredZone = null;
+          container.style.cursor = 'default';
+        }
+        tooltip.style.display = 'none';
+      }
+    });
+
+    window.addEventListener('click', () => {
+      if (hoveredZone) {
+        showDetails(hoveredZone.userData);
+      }
+    });
+
+    function showDetails(data) {
+      document.getElementById('ins-title').innerHTML = `
+        <span class="zone-dot" style="background: #${data.color.toString(16)}; box-shadow: 0 0 10px #${data.color.toString(16)};"></span>
+        ${data.name}
+      `;
+      document.getElementById('ins-subtitle').innerText = data.category;
+      document.getElementById('ins-desc').innerText = data.desc;
+
+      const listEl = document.getElementById('ins-list');
+      listEl.innerHTML = '';
+      data.items.forEach(item => {
+        const li = document.createElement('li');
+        li.innerHTML = `<span>✓</span> ${item}`;
+        listEl.appendChild(li);
+      });
+    }
+
+    // Camera Navigation Views
+    window.setView = function(name) {
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      if (event && event.target) event.target.classList.add('active');
+
+      let targetPos = new THREE.Vector3();
+      let targetLook = new THREE.Vector3();
+
+      switch (name) {
+        case 'iso':
+          targetPos.set(0, 24, 27);
+          targetLook.set(0, 1.4, 0);
+          break;
+        case 'top':
+          targetPos.set(0, 32, 0.01);
+          targetLook.set(0, 0, 0);
+          break;
+        case 'foyer':
+          targetPos.set(0, 5.0, 12.0);
+          targetLook.set(0, 1.2, 4.5);
+          break;
+        case 'digital':
+          targetPos.set(-8.0, 6.0, 3.5);
+          targetLook.set(-8.0, 1.2, -3.125);
+          break;
+        case 'proto':
+          targetPos.set(8.0, 6.0, 3.5);
+          targetLook.set(8.0, 1.2, -3.125);
+          break;
+        case 'sound':
+          targetPos.set(0, 4.5, -0.5);
+          targetLook.set(0, 1.2, -5.125);
+          break;
+        case 'seminar':
+          targetPos.set(-8.0, 6.0, 10.0);
+          targetLook.set(-8.0, 1.1, 4.125);
+          break;
+        case 'office':
+          targetPos.set(8.0, 6.0, 10.0);
+          targetLook.set(8.0, 1.1, 4.125);
+          break;
+      }
+
+      lerpCamera(targetPos, targetLook, 1000);
+    };
+
+    function lerpCamera(targetPos, targetLook, duration) {
+      const startPos = camera.position.clone();
+      const startLook = controls.target.clone();
+      const startT = performance.now();
+
+      function step(now) {
+        const p = Math.min((now - startT) / duration, 1);
+        const ease = 0.5 - Math.cos(p * Math.PI) / 2;
+
+        camera.position.lerpVectors(startPos, targetPos, ease);
+        controls.target.lerpVectors(startLook, targetLook, ease);
+        controls.update();
+
+        if (p < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    }
+
+    // Toggles
+    let roofVis = true;
+    document.getElementById('btn-roof').addEventListener('click', () => {
+      roofVis = !roofVis;
+      roofGroup.visible = roofVis;
+    });
+
+    let fwVis = true;
+    document.getElementById('btn-frontwall').addEventListener('click', () => {
+      fwVis = !fwVis;
+      frontWallGroup.visible = fwVis;
+    });
+
+    // GLTF / GLB Binary Exporter
+    document.getElementById('btn-export').addEventListener('click', () => {
+      const exporter = new THREE.GLTFExporter();
+      const exportGroup = mainGroup.clone();
+      exportGroup.traverse(c => { c.visible = true; });
+
+      exporter.parse(
+        exportGroup,
+        function(gltf) {
+          const blob = new Blob([gltf], { type: 'model/gltf-binary' });
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = 'istka_yeni_medya_merkezi_tam_bina_348m2.glb';
+          a.click();
+          URL.revokeObjectURL(a.href);
+        },
+        function(err) {
+          console.error(err);
+          alert('GLTF Dışa aktarma hatası oluştu.');
+        },
+        { binary: true }
+      );
+    });
+
+    // Render Loop
+    function animate() {
+      requestAnimationFrame(animate);
+      controls.update();
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
+</body>
+</html>

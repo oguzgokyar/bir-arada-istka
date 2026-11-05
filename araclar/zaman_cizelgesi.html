@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aydos Kalesi İSTKA Faaliyet ve Zaman Çizelgesi</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --text: #1e293b;
+    --text-muted: #64748b;
+    --border: #e2e8f0;
+    --hazirlik-bg: #dbeafe;
+    --hazirlik-bar: #3b82f6;
+    --egitim-bg: #dcfce7;
+    --egitim-bar: #22c55e;
+    --yaygin-bg: #fef3c7;
+    --yaygin-bar: #f59e0b;
+    --tanitim-bg: #ffe4e6;
+    --tanitim-bar: #f43f5e;
+    --header-bg: #0f172a;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --border: #334155;
+      --hazirlik-bg: #1e3a8a;
+      --hazirlik-bar: #60a5fa;
+      --egitim-bg: #14532d;
+      --egitim-bar: #4ade80;
+      --yaygin-bg: #78350f;
+      --yaygin-bar: #fbbf24;
+      --tanitim-bg: #881337;
+      --tanitim-bar: #fb7185;
+      --header-bg: #020617;
+    }
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    margin: 0;
+    padding: 24px;
+    box-sizing: border-box;
+  }
+  .header-card {
+    background: linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%);
+    color: #ffffff;
+    padding: 20px 24px;
+    border-radius: 12px;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  }
+  .header-card h1 {
+    margin: 0 0 6px 0;
+    font-size: 20px;
+    font-weight: 700;
+  }
+  .header-card p {
+    margin: 0;
+    font-size: 13px;
+    opacity: 0.9;
+  }
+  .phases {
+    display: flex;
+    gap: 12px;
+    margin-top: 14px;
+    flex-wrap: wrap;
+  }
+  .phase-pill {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 12px;
+    border-radius: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .pill-hz { background: #3b82f6; color: #fff; }
+  .pill-eg { background: #22c55e; color: #fff; }
+  .pill-yg { background: #f59e0b; color: #fff; }
+  .pill-tn { background: #f43f5e; color: #fff; }
+
+  .table-container {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--bg);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    text-align: left;
+  }
+  th, td {
+    padding: 9px 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  thead th {
+    background: var(--header-bg);
+    color: #ffffff;
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .super-header th {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 6px 10px;
+  }
+  .sh-info { background: #1e293b !important; }
+  .sh-hz { background: #1e3a8a !important; color: #93c5fd !important; }
+  .sh-uy { background: #0f172a !important; color: #cbd5e1 !important; }
+
+  .col-kod { width: 55px; text-align: center; font-weight: 700; }
+  .col-kat { width: 130px; font-weight: 600; }
+  .col-ad { min-width: 240px; }
+  .col-sorumlu { width: 140px; color: var(--text-muted); font-size: 11px; }
+  .col-ay {
+    width: 38px;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .ay-hz-th { background: #2563eb !important; }
+  
+  tr:hover td {
+    background: rgba(0,0,0,0.02);
+  }
+  .bar-cell {
+    text-align: center;
+    padding: 4px 2px;
+  }
+  .gantt-bar {
+    height: 14px;
+    border-radius: 4px;
+    margin: 0 auto;
+    width: 90%;
+  }
+  .bar-hz { background: var(--hazirlik-bar); }
+  .bar-eg { background: var(--egitim-bar); }
+  .bar-yg { background: var(--yaygin-bar); }
+  .bar-tn { background: var(--tanitim-bar); }
+</style>
+</head>
+<body>
+
+<div class="header-card">
+  <h1>Aydos Kalesi İSTKA Projesi - Faaliyet ve Zaman Çizelgesi</h1>
+  <p>Bir Arada: Sanat-Teknoloji-Tasarım-Üretim | 12 Aylık Entegre Uygulama Takvimi</p>
+  <div class="phases">
+    <span class="phase-pill pill-hz">1. Hazırlık Süreci (Ay 1-3)</span>
+    <span class="phase-pill pill-eg">2. Eğitim & Uygulama (Ay 4-10)</span>
+    <span class="phase-pill pill-yg">3. Sürdürülebilirlik & Yaygınlaştırma (Ay 3-12)</span>
+    <span class="phase-pill pill-tn">4. Tanıtım & Görünürlük (Ay 1-12)</span>
+  </div>
+</div>
+
+<div class="table-container">
+  <table>
+    <thead>
+      <tr class="super-header">
+        <th colspan="4" class="sh-info">Faaliyet Genel Bilgileri</th>
+        <th colspan="3" class="sh-hz">Hazırlık Süreci (3 Ay)</th>
+        <th colspan="9" class="sh-uy">Uygulama, Yaygınlaştırma ve Kapanış (9 Ay)</th>
+      </tr>
+      <tr>
+        <th class="col-kod">Kod</th>
+        <th class="col-kat">Kategori</th>
+        <th class="col-ad">Faaliyet Adı</th>
+        <th class="col-sorumlu">Sorumlu / Paydaş</th>
+        <th class="col-ay ay-hz-th">A1</th>
+        <th class="col-ay ay-hz-th">A2</th>
+        <th class="col-ay ay-hz-th">A3</th>
+        <th class="col-ay">A4</th>
+        <th class="col-ay">A5</th>
+        <th class="col-ay">A6</th>
+        <th class="col-ay">A7</th>
+        <th class="col-ay">A8</th>
+        <th class="col-ay">A9</th>
+        <th class="col-ay">A10</th>
+        <th class="col-ay">A11</th>
+        <th class="col-ay">A12</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- 1. HAZIRLIK -->
+      <tr>
+        <td class="col-kod">1.1</td>
+        <td class="col-kat">1. Hazırlık</td>
+        <td class="col-ad">Proje Ofisinin Kurulması</td>
+        <td class="col-sorumlu">Proje Yürütücüsü</td>
+        <td class="bar-cell"><div class="gantt-bar bar-hz"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-hz"></div></td>
+        <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td class="col-kod">1.2</td>
+        <td class="col-kat">1. Hazırlık</td>
+        <td class="col-ad">Proje Ekibinin Oluşturulması</td>
+        <td class="col-sorumlu">Proje Yürütücüsü</td>
+        <td class="bar-cell"><div class="gantt-bar bar-hz"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-hz"></div></td>
+        <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td class="col-kod">1.3</td>
+        <td class="col-kat">1. Hazırlık</td>
+        <td class="col-ad">Hedef Gruba Ulaşılması & Seçimler</td>
+        <td class="col-sorumlu">İlçe MEM, Ortaklar</td>
+        <td class="bar-cell"><div class="gantt-bar bar-hz"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-hz"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-hz"></div></td>
+        <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td class="col-kod">1.4</td>
+        <td class="col-kat">1. Hazırlık</td>
+        <td class="col-ad">Satın Almaların Yapılması (Ekipman)</td>
+        <td class="col-sorumlu">Proje Ekibi</td>
+        <td></td>
+        <td class="bar-cell"><div class="gantt-bar bar-hz"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-hz"></div></td>
+        <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td class="col-kod">1.5</td>
+        <td class="col-kat">1. Hazırlık</td>
+        <td class="col-ad">Eğitim, Üretim & Sergileme Alanları</td>
+        <td class="col-sorumlu">Superpool, KÜME, Teknopark</td>
+        <td></td>
+        <td class="bar-cell"><div class="gantt-bar bar-hz"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-hz"></div></td>
+        <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td class="col-kod">1.6</td>
+        <td class="col-kat">1. Hazırlık</td>
+        <td class="col-ad">Aydos Kalesi Dijital Arşivi</td>
+        <td class="col-sorumlu">İl Kültür ve Turizm Müd.</td>
+        <td class="bar-cell"><div class="gantt-bar bar-hz"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-hz"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-hz"></div></td>
+        <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+
+      <!-- 2. EĞİTİM & UYGULAMA -->
+      <tr>
+        <td class="col-kod">2.1</td>
+        <td class="col-kat">2. Eğitim & Uyg.</td>
+        <td class="col-ad">Sanatsal Temel Eğitimi</td>
+        <td class="col-sorumlu">Eğitmenler, KÜME</td>
+        <td></td><td></td><td></td>
+        <td class="bar-cell"><div class="gantt-bar bar-eg"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-eg"></div></td>
+        <td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td class="col-kod">2.2</td>
+        <td class="col-kat">2. Eğitim & Uyg.</td>
+        <td class="col-ad">Dijital Üretim Eğitimi (3B Baskı/Lazer)</td>
+        <td class="col-sorumlu">Teknopark, Eğitmenler</td>
+        <td></td><td></td><td></td>
+        <td class="bar-cell"><div class="gantt-bar bar-eg"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-eg"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-eg"></div></td>
+        <td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td class="col-kod">2.3</td>
+        <td class="col-kat">2. Eğitim & Uyg.</td>
+        <td class="col-ad">Yeni Medya Teknoloji Eğitimi (AI/Kod)</td>
+        <td class="col-sorumlu">KÜME, Teknopark</td>
+        <td></td><td></td><td></td><td></td>
+        <td class="bar-cell"><div class="gantt-bar bar-eg"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-eg"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-eg"></div></td>
+        <td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td class="col-kod">2.4</td>
+        <td class="col-kat">2. Eğitim & Uyg.</td>
+        <td class="col-ad">Mekânsal & Etkileşimli Sanat (AR/VR)</td>
+        <td class="col-sorumlu">KÜME, Superpool</td>
+        <td></td><td></td><td></td><td></td><td></td>
+        <td class="bar-cell"><div class="gantt-bar bar-eg"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-eg"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-eg"></div></td>
+        <td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td class="col-kod">2.5</td>
+        <td class="col-kat">2. Eğitim & Uyg.</td>
+        <td class="col-ad">Eser Geliştirme, Portföy & Lisanslama</td>
+        <td class="col-sorumlu">Uzmanlar, Hukukçular</td>
+        <td></td><td></td><td></td><td></td><td></td>
+        <td class="bar-cell"><div class="gantt-bar bar-eg"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-eg"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-eg"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-eg"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-eg"></div></td>
+        <td></td><td></td>
+      </tr>
+      <tr>
+        <td class="col-kod">2.6</td>
+        <td class="col-kat">2. Eğitim & Uyg.</td>
+        <td class="col-ad">Sanatsal Kritik ve Mentörlük (3 Aşama)</td>
+        <td class="col-sorumlu">Usta Sanatçılar, Küratörler</td>
+        <td></td><td></td><td></td><td></td>
+        <td class="bar-cell"><div class="gantt-bar bar-eg"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-eg"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-eg"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-eg"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-eg"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-eg"></div></td>
+        <td></td><td></td>
+      </tr>
+      <tr>
+        <td class="col-kod">2.7</td>
+        <td class="col-kat">2. Eğitim & Uyg.</td>
+        <td class="col-ad">Sanat Galerisi ve Sergi Gezileri</td>
+        <td class="col-sorumlu">Yunt Sanat, Ekip</td>
+        <td></td><td></td><td></td><td></td>
+        <td class="bar-cell"><div class="gantt-bar bar-eg"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-eg"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-eg"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-eg"></div></td>
+        <td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td class="col-kod">2.8</td>
+        <td class="col-kat">2. Eğitim & Uyg.</td>
+        <td class="col-ad">Eğitimci Gelişim Programı (40 Öğretmen)</td>
+        <td class="col-sorumlu">İlçe MEM, KÜME</td>
+        <td></td><td></td><td></td>
+        <td class="bar-cell"><div class="gantt-bar bar-eg"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-eg"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-eg"></div></td>
+        <td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+
+      <!-- 3. YAYGINLAŞTIRMA -->
+      <tr>
+        <td class="col-kod">3.1</td>
+        <td class="col-kat">3. Yaygınlaştırma</td>
+        <td class="col-ad">Aydos Sanat Platformu (Kurulum/İşletim)</td>
+        <td class="col-sorumlu">Yunt Sanat, Ekip</td>
+        <td></td><td></td>
+        <td class="bar-cell"><div class="gantt-bar bar-yg"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-yg"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-yg"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-yg"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-yg"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-yg"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-yg"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-yg"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-yg"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-yg"></div></td>
+      </tr>
+      <tr>
+        <td class="col-kod">3.2</td>
+        <td class="col-kat">3. Yaygınlaştırma</td>
+        <td class="col-ad">Aydos Sanat Günleri (3 Etkinlik)</td>
+        <td class="col-sorumlu">Yunt Sanat, Sanatçılar</td>
+        <td></td><td></td><td></td><td></td><td></td>
+        <td class="bar-cell"><div class="gantt-bar bar-yg"></div></td>
+        <td></td><td></td>
+        <td class="bar-cell"><div class="gantt-bar bar-yg"></div></td>
+        <td></td>
+        <td class="bar-cell"><div class="gantt-bar bar-yg"></div></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td class="col-kod">3.3</td>
+        <td class="col-kat">3. Yaygınlaştırma</td>
+        <td class="col-ad">Geçici ve Kalıcı Sergiler (100 Eser)</td>
+        <td class="col-sorumlu">Superpool, Yunt Sanat</td>
+        <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+        <td class="bar-cell"><div class="gantt-bar bar-yg"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-yg"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-yg"></div></td>
+      </tr>
+      <tr>
+        <td class="col-kod">3.4</td>
+        <td class="col-kat">3. Yaygınlaştırma</td>
+        <td class="col-ad">Aydos Yeni Medya ve Tasarım Festivali</td>
+        <td class="col-sorumlu">Tüm Ortak & İştirakçiler</td>
+        <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+        <td class="bar-cell"><div class="gantt-bar bar-yg"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-yg"></div></td>
+      </tr>
+
+      <!-- 4. TANITIM -->
+      <tr>
+        <td class="col-kod">4.1</td>
+        <td class="col-kat">4. Tanıtım</td>
+        <td class="col-ad">Fiziki Tanıtım Materyalleri</td>
+        <td class="col-sorumlu">Proje Ekibi</td>
+        <td class="bar-cell"><div class="gantt-bar bar-tn"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-tn"></div></td>
+        <td></td>
+        <td class="bar-cell"><div class="gantt-bar bar-tn"></div></td>
+        <td></td><td></td><td></td><td></td><td></td><td></td>
+        <td class="bar-cell"><div class="gantt-bar bar-tn"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-tn"></div></td>
+      </tr>
+      <tr>
+        <td class="col-kod">4.2</td>
+        <td class="col-kat">4. Tanıtım</td>
+        <td class="col-ad">Özel Tasarım Promosyon Ürünleri</td>
+        <td class="col-sorumlu">Proje Ekibi</td>
+        <td></td><td></td>
+        <td class="bar-cell"><div class="gantt-bar bar-tn"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-tn"></div></td>
+        <td></td><td></td><td></td><td></td><td></td><td></td>
+        <td class="bar-cell"><div class="gantt-bar bar-tn"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-tn"></div></td>
+      </tr>
+      <tr>
+        <td class="col-kod">4.3</td>
+        <td class="col-kat">4. Tanıtım</td>
+        <td class="col-ad">Dijital ve Sosyal Medya Yönetimi</td>
+        <td class="col-sorumlu">Medya Ekibi</td>
+        <td class="bar-cell"><div class="gantt-bar bar-tn"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-tn"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-tn"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-tn"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-tn"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-tn"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-tn"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-tn"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-tn"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-tn"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-tn"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-tn"></div></td>
+      </tr>
+      <tr>
+        <td class="col-kod">4.4</td>
+        <td class="col-kat">4. Tanıtım</td>
+        <td class="col-ad">Web Sitesi İçerik Yönetimi & Portal</td>
+        <td class="col-sorumlu">Proje Ekibi</td>
+        <td></td>
+        <td class="bar-cell"><div class="gantt-bar bar-tn"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-tn"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-tn"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-tn"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-tn"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-tn"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-tn"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-tn"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-tn"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-tn"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-tn"></div></td>
+      </tr>
+      <tr>
+        <td class="col-kod">4.5</td>
+        <td class="col-kat">4. Tanıtım</td>
+        <td class="col-ad">Basın Bültenleri & Dijital Haberler</td>
+        <td class="col-sorumlu">Basın Danışmanı</td>
+        <td class="bar-cell"><div class="gantt-bar bar-tn"></div></td>
+        <td></td>
+        <td class="bar-cell"><div class="gantt-bar bar-tn"></div></td>
+        <td></td><td></td>
+        <td class="bar-cell"><div class="gantt-bar bar-tn"></div></td>
+        <td></td><td></td>
+        <td class="bar-cell"><div class="gantt-bar bar-tn"></div></td>
+        <td></td>
+        <td class="bar-cell"><div class="gantt-bar bar-tn"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-tn"></div></td>
+      </tr>
+      <tr>
+        <td class="col-kod">4.6</td>
+        <td class="col-kat">4. Tanıtım</td>
+        <td class="col-ad">Dijital Proje Kataloğunun Hazırlanması</td>
+        <td class="col-sorumlu">Proje Ekibi, Yunt Sanat</td>
+        <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+        <td class="bar-cell"><div class="gantt-bar bar-tn"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-tn"></div></td>
+        <td class="bar-cell"><div class="gantt-bar bar-tn"></div></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+</body>
+</html>

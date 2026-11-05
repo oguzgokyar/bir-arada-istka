@@ -1,0 +1,192 @@
+# Malzeme Kütüphanesi - Tam Bina Konsepti
+
+newmtl Floor_Epoxy_Circulation
+Kd 0.55 0.58 0.62
+Ks 0.4 0.4 0.4
+Ns 50.0
+
+newmtl Floor_Digital_Lab
+Kd 0.17 0.20 0.25
+Ks 0.3 0.3 0.3
+Ns 40.0
+
+newmtl Floor_Acoustic_Sound
+Kd 0.25 0.18 0.15
+Ks 0.2 0.2 0.2
+Ns 30.0
+
+newmtl Floor_Prototype_Epoxy
+Kd 0.50 0.54 0.58
+Ks 0.4 0.4 0.4
+Ns 60.0
+
+newmtl Floor_Seminar_Carpet
+Kd 0.14 0.17 0.21
+Ks 0.1 0.1 0.1
+Ns 10.0
+
+newmtl Floor_Office_Carpet
+Kd 0.16 0.18 0.22
+Ks 0.1 0.1 0.1
+Ns 10.0
+
+newmtl Floor_Hazard_Stripe
+Kd 0.95 0.62 0.1
+Ks 0.2 0.2 0.2
+Ns 30.0
+
+newmtl Wall_Brick_Exterior
+Kd 0.55 0.21 0.15
+Ks 0.1 0.1 0.1
+Ns 10.0
+
+newmtl Wall_Interior_Drywall
+Kd 0.12 0.15 0.20
+Ks 0.15 0.15 0.15
+Ns 20.0
+
+newmtl Wall_Acoustic_Soundproof
+Kd 0.62 0.38 0.18
+Ks 0.1 0.1 0.1
+Ns 15.0
+
+newmtl Glass_Main_Entrance
+Kd 0.6 0.85 1.0
+d 0.35
+Ks 0.95 0.95 0.95
+Ns 160.0
+
+newmtl Glass_Studio_Window
+Kd 0.5 0.75 0.95
+d 0.28
+Ks 0.95 0.95 0.95
+Ns 160.0
+
+newmtl Sign_Building_Neon
+Kd 0.0 0.82 1.0
+Ka 0.0 0.6 0.9
+Ks 0.8 0.8 0.8
+Ns 100.0
+
+newmtl Duct_Galvanized
+Kd 0.55 0.6 0.65
+Ks 0.8 0.8 0.8
+Ns 100.0
+
+newmtl Duct_Exhaust_Spiral
+Kd 0.7 0.75 0.8
+Ks 0.7 0.7 0.7
+Ns 90.0
+
+newmtl Desk_Dark
+Kd 0.12 0.15 0.20
+Ks 0.25 0.25 0.25
+Ns 30.0
+
+newmtl Wood_ButcherBlock
+Kd 0.70 0.45 0.24
+Ks 0.15 0.15 0.15
+Ns 20.0
+
+newmtl Screen_Curved
+Kd 0.02 0.55 0.85
+Ka 0.01 0.3 0.5
+Ks 0.8 0.8 0.8
+Ns 120.0
+
+newmtl Screen_Emissive_Lab
+Kd 0.0 0.82 1.0
+Ka 0.0 0.6 0.8
+Ks 0.9 0.9 0.9
+Ns 120.0
+
+newmtl Screen_Emissive_AI
+Kd 0.0 0.8 1.0
+Ka 0.0 0.6 0.8
+Ks 0.9 0.9 0.9
+Ns 100.0
+
+newmtl Chair_Ergonomic
+Kd 0.05 0.45 0.7
+Ks 0.3 0.3 0.3
+Ns 35.0
+
+newmtl Chair_Conference
+Kd 0.1 0.6 0.4
+Ks 0.2 0.2 0.2
+Ns 20.0
+
+newmtl Desk_Nesting_Modular
+Kd 0.2 0.65 0.9
+Ks 0.3 0.3 0.3
+Ns 40.0
+
+newmtl Rack_Server_UPS
+Kd 0.06 0.07 0.09
+Ks 0.6 0.6 0.6
+Ns 75.0
+
+newmtl Rack_Metal_Dark
+Kd 0.1 0.12 0.15
+Ks 0.7 0.7 0.7
+Ns 80.0
+
+newmtl Machine_Laser_CO2
+Kd 0.12 0.14 0.18
+Ks 0.6 0.6 0.6
+Ns 80.0
+
+newmtl Machine_CNC_Enclosed
+Kd 0.2 0.24 0.28
+Ks 0.7 0.7 0.7
+Ns 85.0
+
+newmtl Printer_3D_FDM
+Kd 0.92 0.92 0.94
+Ks 0.4 0.4 0.4
+Ns 50.0
+
+newmtl Turntable_Scanner
+Kd 0.95 0.62 0.05
+Ks 0.3 0.3 0.3
+Ns 40.0
+
+newmtl Cabinet_Moisture_Proof
+Kd 0.3 0.35 0.42
+Ks 0.5 0.5 0.5
+Ns 60.0
+
+newmtl Cabinet_Metal_Archive
+Kd 0.25 0.3 0.36
+Ks 0.4 0.4 0.4
+Ns 50.0
+
+newmtl Desk_Mastering_Audio
+Kd 0.08 0.1 0.14
+Ks 0.6 0.6 0.6
+Ns 80.0
+
+newmtl Monitor_Reference_Studio
+Kd 0.15 0.15 0.15
+Ks 0.4 0.4 0.4
+Ns 40.0
+
+newmtl Mic_Boom_Stand
+Kd 0.4 0.45 0.5
+Ks 0.8 0.8 0.8
+Ns 100.0
+
+newmtl Counter_Reception
+Kd 0.1 0.13 0.18
+Ks 0.5 0.5 0.5
+Ns 70.0
+
+newmtl Counter_Kitchenette
+Kd 0.15 0.18 0.24
+Ks 0.3 0.3 0.3
+Ns 30.0
+
+newmtl Sofa_Lounge
+Kd 0.45 0.25 0.7
+Ks 0.2 0.2 0.2
+Ns 20.0
